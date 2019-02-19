@@ -80,7 +80,7 @@ class ListViewController: UIViewController {
         listTableView.topAnchor.constraint(equalTo: navBar.bottomAnchor).isActive = true
         listTableView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         
-        sendTextFeild.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 8).isActive = true
+        sendTextFeild.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 16).isActive = true
         sendTextFeild.topAnchor.constraint(equalTo: listTableView.bottomAnchor, constant: 8).isActive = true
         sendTextFeild.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8).isActive = true
         sendTextFeild.heightAnchor.constraint(equalToConstant: 12)
