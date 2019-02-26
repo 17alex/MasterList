@@ -18,6 +18,7 @@ class LoginViewController: UIViewController {
     private var signUpButton: UIButton!
     private var errorLabel: UILabel!
     private var activityIndicatorView: UIActivityIndicatorView!
+    private var lineView: UIView!
     
     private var ref: DatabaseReference!
     
@@ -32,6 +33,7 @@ class LoginViewController: UIViewController {
         addSignInButton()
         addSignUpButton()
         addErrorLabel()
+        addSeparatorLine()
         addActivityIndicatorView()
         
         addConstraints()
@@ -66,7 +68,8 @@ class LoginViewController: UIViewController {
     private func addLoginTextField() {
         loginTextField = UITextField()
         loginTextField.textAlignment = .center
-        loginTextField.borderStyle = .roundedRect
+        loginTextField.borderStyle = .none
+        loginTextField.clearButtonMode = .always
         loginTextField.placeholder = "login"
         loginTextField.returnKeyType = .next
         loginTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -76,7 +79,7 @@ class LoginViewController: UIViewController {
     private func addPasswordTextField() {
         passwordtextField = UITextField()
         passwordtextField.textAlignment = .center
-        passwordtextField.borderStyle = .roundedRect
+        passwordtextField.borderStyle = .none
         passwordtextField.placeholder = "password"
         passwordtextField.returnKeyType = .next
         passwordtextField.isSecureTextEntry = true
@@ -123,6 +126,13 @@ class LoginViewController: UIViewController {
         view.addSubview(activityIndicatorView)
     }
     
+    private func addSeparatorLine() {
+        lineView = UIView()
+        lineView.backgroundColor = .lightGray
+        lineView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(lineView)
+    }
+    
     private func addConstraints() {
         
         nameLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
@@ -152,6 +162,11 @@ class LoginViewController: UIViewController {
         
         activityIndicatorView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         activityIndicatorView.topAnchor.constraint(equalTo: passwordtextField.bottomAnchor, constant: 50).isActive = true
+        
+        lineView.leftAnchor.constraint(equalTo: loginTextField.leftAnchor).isActive = true
+        lineView.rightAnchor.constraint(equalTo: loginTextField.rightAnchor).isActive = true
+        lineView.topAnchor.constraint(equalTo: loginTextField.bottomAnchor, constant: 4).isActive = true
+        lineView.heightAnchor.constraint(equalToConstant: 2).isActive = true
     }
     
     private func goToListVC() {

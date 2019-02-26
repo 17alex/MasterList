@@ -13,7 +13,7 @@ class ListViewController: UIViewController {
     
     private var listTableView: UITableView!
     private var navBar: UINavigationBar!
-    private var navItem = UINavigationItem()
+    private var navItem: UINavigationItem!
     
     private var user: MyUser!
     private var ref: DatabaseReference!
@@ -73,6 +73,7 @@ class ListViewController: UIViewController {
         navBar.isTranslucent = false
         navBar.translatesAutoresizingMaskIntoConstraints = false
         navBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0, green: 0.7049999833, blue: 1, alpha: 1)]
+        navItem = UINavigationItem()
         navItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(signOutButton))
         navItem.leftBarButtonItem?.tintColor = #colorLiteral(red: 0, green: 0.7049999833, blue: 1, alpha: 1)
         navItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTaskButton))
@@ -102,7 +103,7 @@ class ListViewController: UIViewController {
         let saveAction = UIAlertAction(title: "Save", style: .default) { [weak self] _ in
             guard let strongSelf = self else { return }
             guard let textField = alertController.textFields?.first, let text = textField.text, text != "" else { return }
-            let task = Task(title: text, userId: strongSelf.user.uid)
+            let task = Task(title: text)
             let taskRef = strongSelf.ref.child(task.title.lowercased())
             taskRef.setValue(["title": task.title, "completed": task.completed])
         }
@@ -128,6 +129,24 @@ class ListViewController: UIViewController {
 
 extension ListViewController: UITableViewDelegate {
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cell = tableView.cellForRow(at: indexPath) else { return }
+        let task = tasks[indexPath.row]
+        let isCompleted = !task.completed
+        cell.accessoryType = isCompleted ? .checkmark : .none
+        task.ref?.updateChildValues(["completed": isCompleted])
+    }
+    
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let task = tasks[indexPath.row]
+            task.ref?.removeValue()
+        }
+    }
 }
 
 extension ListViewController: UITableViewDataSource {
@@ -143,24 +162,5 @@ extension ListViewController: UITableViewDataSource {
         cell.textLabel?.text = task.title
         cell.accessoryType = task.completed ? .checkmark : .none
         return cell
-    }
-    
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
-    }
-    
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            let task = tasks[indexPath.row]
-            task.ref?.removeValue()
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let cell = tableView.cellForRow(at: indexPath) else { return }
-        let task = tasks[indexPath.row]
-        let isCompleted = !task.completed
-        cell.accessoryType = isCompleted ? .checkmark : .none
-        task.ref?.updateChildValues(["completed": isCompleted])
     }
 }

@@ -14,7 +14,7 @@ struct Task {
     var completed: Bool = false
     var ref: DatabaseReference?
     
-    init(title: String, userId: String) {
+    init(title: String) {
         self.title = title
     }
     
