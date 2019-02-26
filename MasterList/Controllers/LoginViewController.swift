@@ -16,44 +16,47 @@ class LoginViewController: UIViewController {
     private var passwordtextField: UITextField!
     private var signInButton: UIButton!
     private var signUpButton: UIButton!
+    private var errorLabel: UILabel!
+    
+    private var ref: DatabaseReference!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view = UIScrollView()
-        view.backgroundColor = #colorLiteral(red: 0.4784313725, green: 0.568627451, blue: 1, alpha: 1)
+        view.backgroundColor = .white
+        
         addNameLabel()
         addLoginTextField()
         addPasswordTextField()
         addSignInButton()
         addSignUpButton()
+        addErrorLabel()
+        
         addConstraints()
+        
         loginTextField.delegate = self
         passwordtextField.delegate = self
-        NotificationCenter.default.addObserver(self, selector: #selector(showKeyboard), name: UIApplication.keyboardDidShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(heidKeyboard), name: UIApplication.keyboardDidHideNotification, object: nil)
+        
+        ref = Database.database().reference(withPath: "users")
+        
+        Auth.auth().addStateDidChangeListener { [weak self] (auth, user) in
+            if user != nil {
+                self?.goToListVC()
+            }
+            
+            print("user =====> \(String(describing: user))")
+            print("auth =====> \(auth)")
+        }
+        
         loginTextField.becomeFirstResponder()
     }
 
-    @objc
-    private func showKeyboard(notification: NSNotification) {
-        guard let userInfo = notification.userInfo else { return }
-        let kbFrameSize = (userInfo["UIKeyboardFrameEndUserInfoKey"] as! NSValue).cgRectValue
-        print("showKeyboard kbFrameSize = \(kbFrameSize)")
-        (view as! UIScrollView).contentSize = CGSize(width: view.bounds.width, height: view.bounds.height + kbFrameSize.height)
-    }
-    
-    @objc
-    private func heidKeyboard() {
-        print("heidKeyboard")
-        (view as! UIScrollView).contentSize = CGSize(width: view.bounds.width, height: view.bounds.height)
-    }
-    
     private func addNameLabel() {
         nameLabel = UILabel()
         nameLabel.font = UIFont.systemFont(ofSize: 30, weight: .light)
         nameLabel.textAlignment = .center
         nameLabel.text = "Master list"
-        nameLabel.textColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+        nameLabel.textColor = .black
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(nameLabel)
     }
@@ -61,11 +64,9 @@ class LoginViewController: UIViewController {
     private func addLoginTextField() {
         loginTextField = UITextField()
         loginTextField.textAlignment = .center
-        loginTextField.borderStyle = .none
-        loginTextField.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+        loginTextField.borderStyle = .roundedRect
         loginTextField.placeholder = "login"
         loginTextField.returnKeyType = .next
-        loginTextField.layer.cornerRadius = 16
         loginTextField.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(loginTextField)
     }
@@ -73,11 +74,9 @@ class LoginViewController: UIViewController {
     private func addPasswordTextField() {
         passwordtextField = UITextField()
         passwordtextField.textAlignment = .center
-        passwordtextField.borderStyle = .none
-        passwordtextField.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+        passwordtextField.borderStyle = .roundedRect
         passwordtextField.placeholder = "password"
         passwordtextField.returnKeyType = .next
-        passwordtextField.layer.cornerRadius = 16
         passwordtextField.isSecureTextEntry = true
         passwordtextField.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(passwordtextField)
@@ -85,10 +84,9 @@ class LoginViewController: UIViewController {
     
     private func addSignInButton() {
         signInButton = UIButton()
-        signInButton.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
-        signInButton.layer.cornerRadius = 16
+//        signInButton.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         signInButton.setTitle("Sign In", for: .normal)
-        signInButton.setTitleColor(#colorLiteral(red: 0.4784313725, green: 0.568627451, blue: 1, alpha: 1), for: .normal)
+        signInButton.setTitleColor(#colorLiteral(red: 0, green: 0.7049999833, blue: 1, alpha: 1), for: .normal)
         signInButton.addTarget(self, action: #selector(signInButtonPress), for: .touchUpInside)
         signInButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(signInButton)
@@ -97,10 +95,22 @@ class LoginViewController: UIViewController {
     private func addSignUpButton() {
         signUpButton = UIButton()
         signUpButton.setTitle("Sign Up", for: .normal)
-        signUpButton.setTitleColor(#colorLiteral(red: 1, green: 1, blue: 1, alpha: 1), for: .normal)
+        signUpButton.setTitleColor(.black, for: .normal)
         signUpButton.addTarget(self, action: #selector(signUpButtonPress), for: .touchUpInside)
         signUpButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(signUpButton)
+    }
+    
+    private func addErrorLabel() {
+        errorLabel = UILabel()
+        errorLabel.font = UIFont.systemFont(ofSize: 12, weight: .regular)
+        errorLabel.textColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
+        errorLabel.backgroundColor = #colorLiteral(red: 1, green: 0, blue: 0, alpha: 1)
+        errorLabel.textAlignment = .center
+        errorLabel.numberOfLines = 0
+        errorLabel.translatesAutoresizingMaskIntoConstraints = false
+        errorLabel.isHidden = true
+        view.addSubview(errorLabel)
     }
     
     private func addConstraints() {
@@ -119,32 +129,55 @@ class LoginViewController: UIViewController {
         passwordtextField.heightAnchor.constraint(equalToConstant: 32).isActive = true
         
         signInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        signInButton.widthAnchor.constraint(equalToConstant: 200).isActive = true
+//        signInButton.widthAnchor.constraint(equalToConstant: 200).isActive = true
         signInButton.topAnchor.constraint(equalTo: passwordtextField.bottomAnchor, constant: 100).isActive = true
         
         signUpButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         signUpButton.topAnchor.constraint(equalTo: signInButton.bottomAnchor, constant: 30).isActive = true
 
+        errorLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        errorLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 30).isActive = true
+        errorLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        errorLabel.widthAnchor.constraint(equalToConstant: 300).isActive = true
+    }
+    
+    private func goToListVC() {
+        let listVC = ListViewController()
+        present(listVC, animated: true, completion: nil)
     }
     
     @objc
     private func signInButtonPress() {
         print("signInButtonPress")
-
+        errorLabel.isHidden = true
         guard let login = loginTextField.text, let pass = passwordtextField.text, login != "", pass != "" else {
-            show(text: "fild is empy")
+            showAlert(text: "fild or filds is empy")
             return
         }
         
         Auth.auth().signIn(withEmail: login, password: pass) { [weak self] (result, error) in
+            guard let strongSelf = self else { return }
             if let error = error {
-                print("signIn error = \(error)")
+                print("signIn error = \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    strongSelf.errorLabel.text = error.localizedDescription
+//                    UIView.animate(withDuration: 3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+                        strongSelf.errorLabel.isHidden = false
+//                    }, completion: { (complete) in
+//                        strongSelf.errorLabel.isHidden = true
+//                    })
+                }
+                
             } else if let result = result {
                 print("signIn result = \(result)")
-                let listVC = ListViewController()
-                self?.present(listVC, animated: true, completion: nil)
+                DispatchQueue.main.async {
+                    strongSelf.goToListVC()
+                }
+                
             } else {
-                self?.show(text: "signIn -- no user")
+                DispatchQueue.main.async {
+                    strongSelf.showAlert(text: "signIn -- no user")
+                }
             }
         }
     }
@@ -152,22 +185,38 @@ class LoginViewController: UIViewController {
     @objc
     private func signUpButtonPress() {
         print("signUpButtonPress")
-        
+        errorLabel.isHidden = true
         guard let login = loginTextField.text, let pass = passwordtextField.text, login != "", pass != "" else {
-            show(text: "fild is empy")
+            showAlert(text: "fild or filds is empy")
             return
         }
-        
-        Auth.auth().createUser(withEmail: login, password: pass) { (result, error) in
+
+        Auth.auth().createUser(withEmail: login, password: pass) { [weak self] (result, error) in
+            guard let strongSelf = self else  { return }
+            
             if let error = error {
                 print("signUp error = \(error)")
-            } else if let result = result {
-                print("signUp result = \(result)")
+                DispatchQueue.main.async {
+                    strongSelf.errorLabel.text = error.localizedDescription
+//                    UIView.animate(withDuration: 3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
+                        strongSelf.errorLabel.isHidden = false
+//                    }, completion: { (complete) in
+//                        strongSelf.errorLabel.isHidden = true
+//                    })
+                }
+
+            } else if let user = result?.user {
+                print("signUp result = \(user)")
+                DispatchQueue.main.async {
+                    let userRef = strongSelf.ref.child(user.uid)
+                    userRef.setValue(["email": user.email])
+                    strongSelf.goToListVC()
+                }
             }
         }
     }
     
-    func show(text: String) {
+    func showAlert(text: String) {
         let alertController = UIAlertController(title: "Error", message: text, preferredStyle: .alert)
         let okAction = UIAlertAction(title: "Ok", style: .default, handler: nil)
         alertController.addAction(okAction)
@@ -185,6 +234,7 @@ extension LoginViewController: UITextFieldDelegate {
             passwordtextField.resignFirstResponder()
             return false
         }
+        
         return false
     }
 }
