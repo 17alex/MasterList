@@ -12,6 +12,7 @@ import Firebase
 struct Task {
     let title: String
     var completed: Bool = false
+    var ref: DatabaseReference?
     
     init(title: String, userId: String) {
         self.title = title
@@ -21,5 +22,6 @@ struct Task {
         let snapshotValue = snapshot.value as! [String: AnyObject]
         title = snapshotValue["title"] as! String
         completed = snapshotValue["completed"] as! Bool
+        ref = snapshotValue["ref"] as? DatabaseReference
     }
 }

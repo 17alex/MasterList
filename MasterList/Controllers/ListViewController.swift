@@ -73,8 +73,6 @@ class ListViewController: UIViewController {
         navBar.isTranslucent = false
         navBar.translatesAutoresizingMaskIntoConstraints = false
         navBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0, green: 0.7049999833, blue: 1, alpha: 1)]
-//        navItem = UINavigationItem()
-        navItem.title = "-- -- --"
         navItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(signOutButton))
         navItem.leftBarButtonItem?.tintColor = #colorLiteral(red: 0, green: 0.7049999833, blue: 1, alpha: 1)
         navItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTaskButton))
@@ -154,8 +152,7 @@ extension ListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let task = tasks[indexPath.row]
-//            task.ref?.removeValue()
-            ref.child(task.title).removeValue()
+            task.ref?.removeValue()
         }
     }
     
@@ -164,8 +161,6 @@ extension ListViewController: UITableViewDataSource {
         let task = tasks[indexPath.row]
         let isCompleted = !task.completed
         cell.accessoryType = isCompleted ? .checkmark : .none
-        
-//        task.ref?.updateChildValues(["completed": isCompleted])
-        ref.child(task.title).updateChildValues(["completed": isCompleted])
+        task.ref?.updateChildValues(["completed": isCompleted])
     }
 }

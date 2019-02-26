@@ -24,11 +24,16 @@
                                 <color key="textColor" red="0.0" green="0.58980089430000004" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="SPg-dz-vdA">
+                                <rect key="frame" x="177.5" y="253" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="PoU-n0-rAa" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="5bL-88-U3h"/>
                             <constraint firstItem="PoU-n0-rAa" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="aNm-YQ-ltL"/>
+                            <constraint firstItem="SPg-dz-vdA" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="eyb-Dh-TL6"/>
+                            <constraint firstItem="PoU-n0-rAa" firstAttribute="top" secondItem="SPg-dz-vdA" secondAttribute="bottom" constant="50" id="kK9-tG-zGc"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>

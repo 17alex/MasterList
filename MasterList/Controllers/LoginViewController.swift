@@ -17,6 +17,7 @@ class LoginViewController: UIViewController {
     private var signInButton: UIButton!
     private var signUpButton: UIButton!
     private var errorLabel: UILabel!
+    private var activityIndicatorView: UIActivityIndicatorView!
     
     private var ref: DatabaseReference!
     
@@ -31,6 +32,7 @@ class LoginViewController: UIViewController {
         addSignInButton()
         addSignUpButton()
         addErrorLabel()
+        addActivityIndicatorView()
         
         addConstraints()
         
@@ -109,8 +111,16 @@ class LoginViewController: UIViewController {
         errorLabel.textAlignment = .center
         errorLabel.numberOfLines = 0
         errorLabel.translatesAutoresizingMaskIntoConstraints = false
-        errorLabel.isHidden = true
+        errorLabel.alpha = 0
         view.addSubview(errorLabel)
+    }
+    
+    private func addActivityIndicatorView() {
+        activityIndicatorView = UIActivityIndicatorView(style: .gray)
+        activityIndicatorView.hidesWhenStopped = true
+        activityIndicatorView.stopAnimating()
+        activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(activityIndicatorView)
     }
     
     private func addConstraints() {
@@ -139,6 +149,9 @@ class LoginViewController: UIViewController {
         errorLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 30).isActive = true
         errorLabel.heightAnchor.constraint(equalToConstant: 40).isActive = true
         errorLabel.widthAnchor.constraint(equalToConstant: 300).isActive = true
+        
+        activityIndicatorView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        activityIndicatorView.topAnchor.constraint(equalTo: passwordtextField.bottomAnchor, constant: 50).isActive = true
     }
     
     private func goToListVC() {
@@ -149,78 +162,64 @@ class LoginViewController: UIViewController {
     @objc
     private func signInButtonPress() {
         print("signInButtonPress")
-        errorLabel.isHidden = true
+        
         guard let login = loginTextField.text, let pass = passwordtextField.text, login != "", pass != "" else {
-            showAlert(text: "fild or filds is empy")
+            showWarningLabel(withText: "fild or filds is empy")
             return
         }
-        
+        activityIndicatorView.startAnimating()
         Auth.auth().signIn(withEmail: login, password: pass) { [weak self] (result, error) in
-            guard let strongSelf = self else { return }
+            
             if let error = error {
                 print("signIn error = \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    strongSelf.errorLabel.text = error.localizedDescription
-//                    UIView.animate(withDuration: 3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
-                        strongSelf.errorLabel.isHidden = false
-//                    }, completion: { (complete) in
-//                        strongSelf.errorLabel.isHidden = true
-//                    })
-                }
+                self?.showWarningLabel(withText: error.localizedDescription)
+                self?.activityIndicatorView.stopAnimating()
                 
-            } else if let result = result {
-                print("signIn result = \(result)")
-                DispatchQueue.main.async {
-                    strongSelf.goToListVC()
-                }
+            } else if let user = result?.user {
+                print("signIn user = \(user)")
+                self?.activityIndicatorView.stopAnimating()
+                self?.goToListVC()
                 
             } else {
-                DispatchQueue.main.async {
-                    strongSelf.showAlert(text: "signIn -- no user")
-                }
+                self?.showWarningLabel(withText: "User not exist")
+                self?.activityIndicatorView.stopAnimating()
             }
         }
+        activityIndicatorView.stopAnimating()
     }
     
     @objc
     private func signUpButtonPress() {
         print("signUpButtonPress")
-        errorLabel.isHidden = true
+        
         guard let login = loginTextField.text, let pass = passwordtextField.text, login != "", pass != "" else {
-            showAlert(text: "fild or filds is empy")
+            showWarningLabel(withText: "fild or filds is empy")
             return
         }
-
+        activityIndicatorView.startAnimating()
         Auth.auth().createUser(withEmail: login, password: pass) { [weak self] (result, error) in
-            guard let strongSelf = self else  { return }
             
             if let error = error {
-                print("signUp error = \(error)")
-                DispatchQueue.main.async {
-                    strongSelf.errorLabel.text = error.localizedDescription
-//                    UIView.animate(withDuration: 3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseInOut, animations: {
-                        strongSelf.errorLabel.isHidden = false
-//                    }, completion: { (complete) in
-//                        strongSelf.errorLabel.isHidden = true
-//                    })
-                }
-
+                print("signUp error = \(error.localizedDescription)")
+                self?.showWarningLabel(withText: error.localizedDescription)
+                self?.activityIndicatorView.stopAnimating()
+                
             } else if let user = result?.user {
                 print("signUp result = \(user)")
-                DispatchQueue.main.async {
-                    let userRef = strongSelf.ref.child(user.uid)
-                    userRef.setValue(["email": user.email])
-                    strongSelf.goToListVC()
-                }
+                self?.ref.child(user.uid).setValue(["email": user.email])
+                self?.activityIndicatorView.stopAnimating()
+                self?.goToListVC()
             }
         }
     }
     
-    func showAlert(text: String) {
-        let alertController = UIAlertController(title: "Error", message: text, preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "Ok", style: .default, handler: nil)
-        alertController.addAction(okAction)
-        present(alertController, animated: true, completion: nil)
+    private func showWarningLabel(withText text: String) {
+        errorLabel.text = text
+        errorLabel.alpha = 1
+        
+        UIView.animate(withDuration: 3) { [weak self] in
+            self?.errorLabel.alpha = 0
+        }
     }
 }
 
