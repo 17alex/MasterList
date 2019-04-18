@@ -12,11 +12,9 @@ import Firebase
 class ListViewController: UIViewController {
     
     private var listTableView: UITableView!
-    private var navBar: UINavigationBar!
-    private var navItem: UINavigationItem!
     
-    private var user: MyUser!
-    private var ref: DatabaseReference!
+    private var myUser: MyUser!
+    private var tasksRef: DatabaseReference!
     private var tasks = [Task]()
     
     override func viewDidLoad() {
@@ -24,30 +22,35 @@ class ListViewController: UIViewController {
         
         view.backgroundColor = .white
         
-        addNavBar()
+        configNavController()
         addlistTableView()
         addConstraints()
         registerCell()
         
-        guard let currentUser = Auth.auth().currentUser else { return } //TODO: - fix
-        user = MyUser(user: currentUser)
-        ref = Database.database().reference(withPath: "users").child(user.uid).child("tasks")
-        navItem.title = user.email
         listTableView.delegate = self
         listTableView.dataSource = self
+        navigationItem.title = "zzzzzz"
+        
+        guard let currentUser = Auth.auth().currentUser else { return } //TODO: - fix
+        myUser = MyUser(user: currentUser)
+        tasksRef = Database.database().reference(withPath: "users").child(myUser.uid).child("tasks")
+//        navigationItem.title = myUser.email
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        ref.observe(.value) { [weak self] (snapshot) in
-            var tasks = [Task]()
+        guard let _ = Auth.auth().currentUser else { return } //TODO: - fix
+        
+        tasksRef.observe(.value) { [weak self] (snapshot) in
+            
+            var localTasks = [Task]()
             for item in snapshot.children {
-                let task = Task(snapshot: item as! DataSnapshot)
-                tasks.append(task)
+                let localTask = Task(snapshot: item as! DataSnapshot)
+                localTasks.append(localTask)
             }
             
-            self?.tasks = tasks
+            self?.tasks = localTasks
             self?.listTableView.reloadData()
         }
     }
@@ -55,7 +58,7 @@ class ListViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        ref.removeAllObservers()
+        tasksRef.removeAllObservers()
     }
     
     private func addlistTableView() {
@@ -68,27 +71,20 @@ class ListViewController: UIViewController {
         listTableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
     }
     
-    private func addNavBar() {
-        navBar = UINavigationBar()
-        navBar.isTranslucent = false
-        navBar.translatesAutoresizingMaskIntoConstraints = false
-        navBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0, green: 0.7049999833, blue: 1, alpha: 1)]
-        navItem = UINavigationItem()
-        navItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(signOutButton))
-        navItem.leftBarButtonItem?.tintColor = #colorLiteral(red: 0, green: 0.7049999833, blue: 1, alpha: 1)
-        navItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTaskButton))
-        navItem.rightBarButtonItem?.tintColor = #colorLiteral(red: 0, green: 0.7049999833, blue: 1, alpha: 1)
-        navBar.items = [navItem]
-        view.addSubview(navBar)
+    private func configNavController() {
+        
+        let rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTaskButton))
+        let leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(signOutButton))
+        navigationItem.rightBarButtonItem = rightBarButtonItem
+        navigationItem.leftBarButtonItem = leftBarButtonItem
     }
     
     @objc
     private func signOutButton() {
-        print("logOutButton")
         
         do {
             try Auth.auth().signOut()
-            dismiss(animated: true, completion: nil)
+            navigationController?.popViewController(animated: true)
         } catch {
             print("error = \(error.localizedDescription)")
         }
@@ -96,7 +92,6 @@ class ListViewController: UIViewController {
     
     @objc
     private func addTaskButton() {
-        print("addTaskButton")
         
         let alertController = UIAlertController(title: "New Task", message: "enter new task name", preferredStyle: .alert)
         alertController.addTextField()
@@ -104,7 +99,7 @@ class ListViewController: UIViewController {
             guard let strongSelf = self else { return }
             guard let textField = alertController.textFields?.first, let text = textField.text, text != "" else { return }
             let task = Task(title: text)
-            let taskRef = strongSelf.ref.child(task.title.lowercased())
+            let taskRef = strongSelf.tasksRef.child(task.title.lowercased())
             taskRef.setValue(["title": task.title, "completed": task.completed])
         }
         
@@ -116,12 +111,12 @@ class ListViewController: UIViewController {
     
     private func addConstraints() {
         
-        navBar.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        navBar.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
-        navBar.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+//        navBar.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+//        navBar.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
+//        navBar.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         
         listTableView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        listTableView.topAnchor.constraint(equalTo: navBar.bottomAnchor).isActive = true
+        listTableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 40).isActive = true
         listTableView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         listTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
     }

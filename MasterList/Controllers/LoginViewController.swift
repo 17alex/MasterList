@@ -37,24 +37,32 @@ class LoginViewController: UIViewController {
         addActivityIndicatorView()
         
         addConstraints()
+        navigationController?.setNavigationBarHidden(true, animated: true)
         
         loginTextField.delegate = self
         passwordtextField.delegate = self
-        
-        ref = Database.database().reference(withPath: "users")
-        
-        Auth.auth().addStateDidChangeListener { [weak self] (auth, user) in
-            if user != nil {
-                self?.goToListVC()
-            }
-            
-            print("user =====> \(String(describing: user))")
-            print("auth =====> \(auth)")
-        }
-        
-        loginTextField.becomeFirstResponder()
     }
-
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        
+        loginTextField.text = ""
+        passwordtextField.text = ""
+        ref = Database.database().reference(withPath: "users")
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(true)
+        
+        if Auth.auth().currentUser != nil {
+            print("user exist")
+            goToListViewController()
+        } else {
+            print("user nil")
+            loginTextField.becomeFirstResponder()
+        }
+    }
+    
     private func addNameLabel() {
         nameLabel = UILabel()
         nameLabel.font = UIFont.systemFont(ofSize: 30, weight: .light)
@@ -69,7 +77,7 @@ class LoginViewController: UIViewController {
         loginTextField = UITextField()
         loginTextField.textAlignment = .center
         loginTextField.borderStyle = .none
-        loginTextField.clearButtonMode = .always
+        loginTextField.clearButtonMode = .whileEditing
         loginTextField.placeholder = "login"
         loginTextField.returnKeyType = .next
         loginTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -80,8 +88,9 @@ class LoginViewController: UIViewController {
         passwordtextField = UITextField()
         passwordtextField.textAlignment = .center
         passwordtextField.borderStyle = .none
+        passwordtextField.clearButtonMode = .whileEditing
         passwordtextField.placeholder = "password"
-        passwordtextField.returnKeyType = .next
+        passwordtextField.returnKeyType = .done
         passwordtextField.isSecureTextEntry = true
         passwordtextField.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(passwordtextField)
@@ -89,8 +98,8 @@ class LoginViewController: UIViewController {
     
     private func addSignInButton() {
         signInButton = UIButton()
-//        signInButton.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         signInButton.setTitle("Sign In", for: .normal)
+        signInButton.titleLabel?.font = UIFont.systemFont(ofSize: 26, weight: .regular)
         signInButton.setTitleColor(#colorLiteral(red: 0, green: 0.7049999833, blue: 1, alpha: 1), for: .normal)
         signInButton.addTarget(self, action: #selector(signInButtonPress), for: .touchUpInside)
         signInButton.translatesAutoresizingMaskIntoConstraints = false
@@ -100,7 +109,8 @@ class LoginViewController: UIViewController {
     private func addSignUpButton() {
         signUpButton = UIButton()
         signUpButton.setTitle("Sign Up", for: .normal)
-        signUpButton.setTitleColor(.black, for: .normal)
+        signUpButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        signUpButton.setTitleColor(#colorLiteral(red: 0, green: 0.7049999833, blue: 1, alpha: 1), for: .normal)
         signUpButton.addTarget(self, action: #selector(signUpButtonPress), for: .touchUpInside)
         signUpButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(signUpButton)
@@ -149,9 +159,7 @@ class LoginViewController: UIViewController {
         passwordtextField.heightAnchor.constraint(equalToConstant: 32).isActive = true
         
         signInButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-//        signInButton.widthAnchor.constraint(equalToConstant: 200).isActive = true
         signInButton.topAnchor.constraint(equalTo: passwordtextField.bottomAnchor, constant: 100).isActive = true
-        
         signUpButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         signUpButton.topAnchor.constraint(equalTo: signInButton.bottomAnchor, constant: 30).isActive = true
 
@@ -166,65 +174,81 @@ class LoginViewController: UIViewController {
         lineView.leftAnchor.constraint(equalTo: loginTextField.leftAnchor).isActive = true
         lineView.rightAnchor.constraint(equalTo: loginTextField.rightAnchor).isActive = true
         lineView.topAnchor.constraint(equalTo: loginTextField.bottomAnchor, constant: 4).isActive = true
-        lineView.heightAnchor.constraint(equalToConstant: 2).isActive = true
+        lineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
     }
     
-    private func goToListVC() {
-        let listVC = ListViewController()
-        present(listVC, animated: true, completion: nil)
+    private func goToListViewController() {
+        let viewController = MyUsersViewController()
+        print("list")
+        navigationController?.pushViewController(viewController, animated: true)
+    }
+    
+    private func presentAlertForEnterName(complition: @escaping (_ name: String) -> Void) {
+        
+        let alertController = UIAlertController(title: "Enter", message: "name", preferredStyle: .alert)
+        alertController.addTextField(configurationHandler: nil)
+        let saveAction = UIAlertAction(title: "Ok", style: .default, handler: { (_) in
+            if let nameText = alertController.textFields?.first?.text, nameText != "" {
+                complition(nameText)
+            }
+        })
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: { (_) in
+            complition("")
+        })
+        
+        alertController.addAction(saveAction)
+        alertController.addAction(cancelAction)
+        present(alertController, animated: true, completion: nil)
     }
     
     @objc
     private func signInButtonPress() {
-        print("signInButtonPress")
         
         guard let login = loginTextField.text, let pass = passwordtextField.text, login != "", pass != "" else {
-            showWarningLabel(withText: "fild or filds is empy")
+            showWarningLabel(withText: "fild(s) is empy")
             return
         }
+        
         activityIndicatorView.startAnimating()
         Auth.auth().signIn(withEmail: login, password: pass) { [weak self] (result, error) in
             
             if let error = error {
-                print("signIn error = \(error.localizedDescription)")
                 self?.showWarningLabel(withText: error.localizedDescription)
-                self?.activityIndicatorView.stopAnimating()
                 
-            } else if let user = result?.user {
-                print("signIn user = \(user)")
-                self?.activityIndicatorView.stopAnimating()
-                self?.goToListVC()
+            } else if result?.user != nil {
+                self?.goToListViewController()
                 
             } else {
                 self?.showWarningLabel(withText: "User not exist")
-                self?.activityIndicatorView.stopAnimating()
             }
+            
+            self?.activityIndicatorView.stopAnimating()
         }
-        activityIndicatorView.stopAnimating()
     }
     
     @objc
     private func signUpButtonPress() {
-        print("signUpButtonPress")
-        
+        print("===== SIGN UP ========")
         guard let login = loginTextField.text, let pass = passwordtextField.text, login != "", pass != "" else {
-            showWarningLabel(withText: "fild or filds is empy")
+            showWarningLabel(withText: "fild(s) is empy")
             return
         }
+        
         activityIndicatorView.startAnimating()
         Auth.auth().createUser(withEmail: login, password: pass) { [weak self] (result, error) in
             
             if let error = error {
-                print("signUp error = \(error.localizedDescription)")
                 self?.showWarningLabel(withText: error.localizedDescription)
-                self?.activityIndicatorView.stopAnimating()
                 
             } else if let user = result?.user {
-                print("signUp result = \(user)")
-                self?.ref.child(user.uid).setValue(["email": user.email])
-                self?.activityIndicatorView.stopAnimating()
-                self?.goToListVC()
+                self?.presentAlertForEnterName(complition: { (name) in
+                    self?.ref.child(user.uid).setValue(["name": name])
+                    self?.goToListViewController()
+                })
             }
+            
+            self?.activityIndicatorView.stopAnimating()
         }
     }
     
