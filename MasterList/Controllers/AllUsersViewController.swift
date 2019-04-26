@@ -52,7 +52,9 @@ class AllUsersViewController: UIViewController {
                 let uid = snapValue["uid"] as! String
                 let name = snapValue["name"] as! String
                 let myUser = MyUser(uid: uid, name: name)
-                self?.allUsers.append(myUser)
+                if myUser.uid != self?.currentUser.uid {
+                    self?.allUsers.append(myUser)
+                }
             }
             self?.allUsersTableView.reloadData()
         }
@@ -60,7 +62,7 @@ class AllUsersViewController: UIViewController {
         myUsersRef = Database.database().reference().child("users").child("list").child(currentUser.uid).child("myUsers")
         
         myUsersRef.observe(.value) { [weak self] (snapshot) in
-            self?.myUsers = snapshot.value as! [String: String]
+            self?.myUsers = snapshot.value as? [String: String] ?? [:]
             self?.allUsersTableView.reloadData()
         }
     }

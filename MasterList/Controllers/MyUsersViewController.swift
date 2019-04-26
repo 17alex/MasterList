@@ -44,7 +44,7 @@ class MyUsersViewController: UIViewController {
         
         myUsersRef.observe(.value) { [weak self] (snapshot) in
             self?.myUsers = []
-            let dict = snapshot.value as! [String: String]
+            let dict = snapshot.value as? [String: String] ?? [:]
             for item in dict {
                 let id = item.key
                 let name = item.value
