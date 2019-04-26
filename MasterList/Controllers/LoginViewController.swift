@@ -35,9 +35,7 @@ class LoginViewController: UIViewController {
         addErrorLabel()
         addSeparatorLine()
         addActivityIndicatorView()
-        
         addConstraints()
-        navigationController?.setNavigationBarHidden(true, animated: true)
         
         loginTextField.delegate = self
         passwordtextField.delegate = self
@@ -45,10 +43,10 @@ class LoginViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
-        
+        navigationController?.setNavigationBarHidden(true, animated: true)
         loginTextField.text = ""
         passwordtextField.text = ""
-        ref = Database.database().reference(withPath: "users")
+        ref = Database.database().reference()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -243,7 +241,7 @@ class LoginViewController: UIViewController {
                 
             } else if let user = result?.user {
                 self?.presentAlertForEnterName(complition: { (name) in
-                    self?.ref.child(user.uid).setValue(["name": name])
+                    self?.ref.child("users").child("list") .child(user.uid).setValue(["name": name, "uid": user.uid])
                     self?.goToListViewController()
                 })
             }

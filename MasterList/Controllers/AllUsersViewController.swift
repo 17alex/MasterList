@@ -11,9 +11,13 @@ import Firebase
 
 class AllUsersViewController: UIViewController {
 
-    private var usersTableView: UITableView!
+    private var allUsersTableView: UITableView!
     
+    private var allUsersRef: DatabaseReference!
+    private var myUsersRef: DatabaseReference!
+    private var currentUser: MyUser!
     private var allUsers: [MyUser] = []
+    private var myUsers: [String: String] = [:]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,31 +25,64 @@ class AllUsersViewController: UIViewController {
         addUsersTableView()
         addConstraints()
         
-        let ref = Database.database().reference()
+        allUsersTableView.dataSource = self
+        allUsersTableView.delegate = self
         
-        let arrayUserId = ref.value(forKey: "users") as! [User]
-        for item in arrayUserId {
-            var myUser = MyUser(user: item)
-            myUser.name = ref.child(myUser.uid).value(forKey: "name") as! String
-            allUsers.append(myUser)
+        guard let user = Auth.auth().currentUser else {
+            navigationItem.title = "error"
+            print("MyUsersViewController not user")
+            // dismiss  // TODO: - fix dismiss
+            return
+        }
+        currentUser = MyUser(user: user)
+        print("user exist = \(currentUser.uid)")
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        
+        allUsersRef = Database.database().reference().child("users").child("list")
+
+        allUsersRef.observe(.value) { [weak self] (snapshot) in
+            self?.allUsers = []
+            for item in snapshot.children {
+                let snap = item as! DataSnapshot
+                let snapValue = snap.value as! [String: AnyObject]
+                let uid = snapValue["uid"] as! String
+                let name = snapValue["name"] as! String
+                let myUser = MyUser(uid: uid, name: name)
+                self?.allUsers.append(myUser)
+            }
+            self?.allUsersTableView.reloadData()
         }
         
-        usersTableView.dataSource = self
-        usersTableView.delegate = self
+        myUsersRef = Database.database().reference().child("users").child("list").child(currentUser.uid).child("myUsers")
+        
+        myUsersRef.observe(.value) { [weak self] (snapshot) in
+            self?.myUsers = snapshot.value as! [String: String]
+            self?.allUsersTableView.reloadData()
+        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        allUsersRef.removeAllObservers()
     }
     
     private func addUsersTableView() {
-        usersTableView = UITableView()
-        usersTableView.translatesAutoresizingMaskIntoConstraints = false
-        usersTableView.register(UITableViewCell.self, forCellReuseIdentifier: "usersList")
-        view.addSubview(usersTableView)
+        allUsersTableView = UITableView()
+        allUsersTableView.translatesAutoresizingMaskIntoConstraints = false
+        allUsersTableView.register(UITableViewCell.self, forCellReuseIdentifier: "usersList")
+        view.addSubview(allUsersTableView)
     }
     
     private func addConstraints() {
-        usersTableView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        usersTableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
-        usersTableView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        usersTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        allUsersTableView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        allUsersTableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
+        allUsersTableView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        allUsersTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
     }
 }
 
@@ -57,12 +94,30 @@ extension AllUsersViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "usersList", for: indexPath)
-        cell.textLabel?.text = allUsers[indexPath.row].name
+        let user = allUsers[indexPath.row]
+        cell.textLabel?.text = user.name
+        let check = myUsers.keys.contains(allUsers[indexPath.row].uid)
+        cell.accessoryType = check ? .checkmark : .none
         return cell
     }
 }
 
 extension AllUsersViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        let cell = tableView.cellForRow(at: indexPath)
+        let selectMyUser = allUsers[indexPath.row]
+        if cell?.accessoryType == .checkmark {
+            myUsers.removeValue(forKey: selectMyUser.uid)
+        } else {
+            myUsers[selectMyUser.uid] = selectMyUser.name
+        }
+        myUsersRef.setValue(myUsers)
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+    }
+    
     
 }
 

@@ -11,8 +11,9 @@ import Firebase
 
 class MyUsersViewController: UIViewController {
 
-    private var usersTableView: UITableView!
+    private var myUsersTableView: UITableView!
     
+    private var myUsersRef: DatabaseReference!
     private var myUsers: [MyUser] = []
     private var currentMyUser: MyUser!
     
@@ -23,8 +24,8 @@ class MyUsersViewController: UIViewController {
         configNavController()
         addUsersTableView()
         addConstraints()
-        usersTableView.dataSource = self
-        usersTableView.delegate = self
+        myUsersTableView.dataSource = self
+        myUsersTableView.delegate = self
 
         guard let currentUser = Auth.auth().currentUser else {
             navigationItem.title = "error"
@@ -33,34 +34,38 @@ class MyUsersViewController: UIViewController {
         }
         print("MyUsersViewController user exist")
         currentMyUser = MyUser(user: currentUser)
+    }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillAppear(true)
         
-        let myUsersRef = Database.database().reference(withPath: "users").child(currentMyUser.uid).child("myUsers")
+        // как JSON декодировать попробовать
+        myUsersRef = Database.database().reference().child("users").child("list").child(currentMyUser.uid).child("myUsers")
         
-
-        myUsersRef.observe(.value) { (snapshot) in
-            for item in snapshot.children {
-                let dd = item as! DataSnapshot
-                print("dd = \(dd)")
-                let ss = dd.value as! [String: String]
-                print("ss = \(ss)")
-                let vv = ss["userUID"]! as String
-                print("===> \(vv)")
-                self.myUsers.append(MyUser(uid: vv, name: "11"))
-                self.usersTableView.reloadData()
+        myUsersRef.observe(.value) { [weak self] (snapshot) in
+            self?.myUsers = []
+            let dict = snapshot.value as! [String: String]
+            for item in dict {
+                let id = item.key
+                let name = item.value
+                let myUser = MyUser(uid: id, name: name)
+                self?.myUsers.append(myUser)
             }
+            self?.myUsersTableView.reloadData()
         }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(true)
         
-        print("test")
-//        for item in arrayUserId {
-//            let myUser = MyUser(uid: item.key, name: item.value)
-//            myUsers.append(myUser)
-//        }
+        myUsersRef.removeAllObservers()
     }
     
     private func configNavController() {
-        
-        let rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addTaskButton))
-        let leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(signOutButton))
+//        let rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addMyUsersButton))
+        let rightBarButtonItem = UIBarButtonItem(title: "Select", style: .done, target: self, action: #selector(addMyUsersButton))
+//        let leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(signOutButton))
+        let leftBarButtonItem = UIBarButtonItem(title: "LogOut", style: .done, target: self, action: #selector(signOutButton))
         navigationItem.rightBarButtonItem = rightBarButtonItem
         navigationItem.leftBarButtonItem = leftBarButtonItem
     }
@@ -77,23 +82,24 @@ class MyUsersViewController: UIViewController {
     }
     
     @objc
-    private func addTaskButton() {
+    private func addMyUsersButton() {
         
-        print(#function)
+        let allUsersVC = AllUsersViewController()
+        navigationController?.pushViewController(allUsersVC, animated: true)
     }
 
     private func addUsersTableView() {
-        usersTableView = UITableView()
-        usersTableView.translatesAutoresizingMaskIntoConstraints = false
-        usersTableView.register(UITableViewCell.self, forCellReuseIdentifier: "usersList")
-        view.addSubview(usersTableView)
+        myUsersTableView = UITableView()
+        myUsersTableView.translatesAutoresizingMaskIntoConstraints = false
+        myUsersTableView.register(UITableViewCell.self, forCellReuseIdentifier: "usersList")
+        view.addSubview(myUsersTableView)
     }
 
     private func addConstraints() {
-        usersTableView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        usersTableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
-        usersTableView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        usersTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        myUsersTableView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        myUsersTableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
+        myUsersTableView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        myUsersTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
     }
 }
 
@@ -105,7 +111,7 @@ extension MyUsersViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "usersList", for: indexPath)
-        cell.textLabel?.text = myUsers[indexPath.row].uid
+        cell.textLabel?.text = myUsers[indexPath.row].name
         return cell
     }
 }
