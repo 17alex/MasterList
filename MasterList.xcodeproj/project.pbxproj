@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		849298D5221EA27D002BEFBF /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849298D4221EA27D002BEFBF /* Task.swift */; };
 		849298D7221EA28C002BEFBF /* myUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849298D6221EA28C002BEFBF /* myUser.swift */; };
+		84A425812276D83200D42873 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A425802276D83200D42873 /* ChatViewController.swift */; };
+		84A425832276DECA00D42873 /* test.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 84A425822276DECA00D42873 /* test.storyboard */; };
+		84A425852277246A00D42873 /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A425842277246A00D42873 /* Post.swift */; };
 		84F34EFA226473D9004F03F9 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F34EF9226473D9004F03F9 /* ProfileViewController.swift */; };
 		84F47C912265D2BE005CC276 /* MyUsersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F47C902265D2BE005CC276 /* MyUsersViewController.swift */; };
 		84F47C9322660457005CC276 /* AllUsersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F47C9222660457005CC276 /* AllUsersViewController.swift */; };
@@ -25,6 +28,9 @@
 		4E05B31DE725A2AD5755ADB7 /* Pods_MasterList.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MasterList.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		849298D4221EA27D002BEFBF /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		849298D6221EA28C002BEFBF /* myUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = myUser.swift; sourceTree = "<group>"; };
+		84A425802276D83200D42873 /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
+		84A425822276DECA00D42873 /* test.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = test.storyboard; sourceTree = "<group>"; };
+		84A425842277246A00D42873 /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
 		84F34EF9226473D9004F03F9 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		84F47C902265D2BE005CC276 /* MyUsersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyUsersViewController.swift; sourceTree = "<group>"; };
 		84F47C9222660457005CC276 /* AllUsersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllUsersViewController.swift; sourceTree = "<group>"; };
@@ -66,6 +72,7 @@
 			children = (
 				849298D4221EA27D002BEFBF /* Task.swift */,
 				849298D6221EA28C002BEFBF /* myUser.swift */,
+				84A425842277246A00D42873 /* Post.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -75,6 +82,7 @@
 			children = (
 				8D6BFCED221C78F400A009F4 /* LoginViewController.swift */,
 				84F47C902265D2BE005CC276 /* MyUsersViewController.swift */,
+				84A425802276D83200D42873 /* ChatViewController.swift */,
 				84F47C9222660457005CC276 /* AllUsersViewController.swift */,
 				8D6BFCEF221C78FA00A009F4 /* ListViewController.swift */,
 				84F34EF9226473D9004F03F9 /* ProfileViewController.swift */,
@@ -116,6 +124,7 @@
 				849298D9221EA2BB002BEFBF /* Controllers */,
 				8D0EEF8B221C764500E72042 /* Assets.xcassets */,
 				8D0EEF8D221C764500E72042 /* LaunchScreen.storyboard */,
+				84A425822276DECA00D42873 /* test.storyboard */,
 				8D0EEF90221C764500E72042 /* Info.plist */,
 				8D0EEF96221C769D00E72042 /* GoogleService-Info.plist */,
 			);
@@ -184,6 +193,7 @@
 			files = (
 				8D0EEF8F221C764500E72042 /* LaunchScreen.storyboard in Resources */,
 				8D0EEF97221C769D00E72042 /* GoogleService-Info.plist in Resources */,
+				84A425832276DECA00D42873 /* test.storyboard in Resources */,
 				8D0EEF8C221C764500E72042 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -247,7 +257,9 @@
 				84F47C912265D2BE005CC276 /* MyUsersViewController.swift in Sources */,
 				8D6BFCF0221C78FA00A009F4 /* ListViewController.swift in Sources */,
 				849298D7221EA28C002BEFBF /* myUser.swift in Sources */,
+				84A425812276D83200D42873 /* ChatViewController.swift in Sources */,
 				8D0EEF85221C764300E72042 /* AppDelegate.swift in Sources */,
+				84A425852277246A00D42873 /* Post.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

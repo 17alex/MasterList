@@ -40,14 +40,17 @@ class MyUsersViewController: UIViewController {
         super.viewWillAppear(true)
         
         // как JSON декодировать попробовать
-        myUsersRef = Database.database().reference().child("users").child("list").child(currentMyUser.uid).child("myUsers")
+        myUsersRef = Database.database().reference().child("users").child("list").child(currentMyUser.uid).child("frends")
         
         myUsersRef.observe(.value) { [weak self] (snapshot) in
             self?.myUsers = []
-            let dict = snapshot.value as? [String: String] ?? [:]
+            print("snapshot = \(snapshot)")
+            let dict = snapshot.value as? [String: Any] ?? [:]
+            print("dict = \(dict)")
             for item in dict {
-                let id = item.key
-                let name = item.value
+                let dic = item.value as? [String: Any] ?? [:]
+                let id = dic["uid"] as! String
+                let name = dic["name"] as! String
                 let myUser = MyUser(uid: id, name: name)
                 self?.myUsers.append(myUser)
             }
@@ -118,4 +121,9 @@ extension MyUsersViewController: UITableViewDataSource {
 
 extension MyUsersViewController: UITableViewDelegate {
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // index
+        let frend = myUsers[indexPath.row]
+        navigationController?.pushViewController(ChatViewController(myFrend: frend), animated: true)
+    }
 }
