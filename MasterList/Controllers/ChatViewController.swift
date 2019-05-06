@@ -28,7 +28,7 @@ class ChatViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .white
+        view.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
         
         guard let fbUser = Auth.auth().currentUser else { return } // TODO: - dismiss
         currentMyUser = MyUser(user: fbUser)
@@ -41,6 +41,7 @@ class ChatViewController: UIViewController {
         
         chatTextField.delegate = self
         chatTableView.dataSource = self
+        chatTableView.delegate = self
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -51,13 +52,23 @@ class ChatViewController: UIViewController {
         
         toMyFrendsPostsRef.observe(.value) { [weak self] (snapshot) in
             self?.myPosts = []
-            print("snapshot posts = \(snapshot)")
+//            print("snapshot posts = \(snapshot)")
             let dict = snapshot.value as? [String: String] ?? [:]
             print("dict = \(dict)")
             for item in dict {
                 self?.myPosts.append(Post(time: TimeInterval(Int(item.key)!) , text: item.value))
             }
+            
+            self?.myPosts.sort(by: { (m1, m2) -> Bool in
+                return m1.time < m2.time
+            })
+            print("myPosts = \(self?.myPosts)")
             self?.chatTableView.reloadData()
+            
+            if let numberRows = self?.myPosts.count {
+                let scrollRow = numberRows == 0 ? 0 : numberRows - 1
+                self?.chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
+            }
         }
     }
     
@@ -70,16 +81,21 @@ class ChatViewController: UIViewController {
     
     @objc
     private func keyboardShow(notification: NSNotification) {
-        print("keyboardShow")
+//        print("keyboardShow")
         guard let userInfo = notification.userInfo else { return }
-        print("userInfo = \(userInfo)")
+//        print("userInfo = \(userInfo)")
         let kbFrameSize = (userInfo["UIKeyboardFrameEndUserInfoKey"] as! NSValue).cgRectValue
-        print("showKeyboard kbFrameSize = \(kbFrameSize)")
+//        print("showKeyboard kbFrameSize = \(kbFrameSize)")
         let offset = kbFrameSize.height
-        print("offset = \(offset)")
+//        print("offset = \(offset)")
         
-        UIView.animate(withDuration: 0.25) { [weak self] in
-            self?.view.frame.origin.y -= offset
+        UIView.animate(withDuration: 0.25, animations: { [weak self] in
+            self?.view.frame.size.height -= offset
+        }) { [weak self] (_) in
+            if let numberRows = self?.myPosts.count {
+                let scrollRow = numberRows == 0 ? 0 : numberRows - 1
+                self?.chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
+            }
         }
     }
     
@@ -87,24 +103,31 @@ class ChatViewController: UIViewController {
     private func keyboardHide() {
         
         UIView.animate(withDuration: 0.25) { [weak self] in
-            self?.view.frame.origin.y = 0
+//            self?.view.frame.origin.y = 0
+            self?.view.frame.size.height = UIScreen.main.bounds.height
         }
     }
     
     @objc
     private func chatSendButtonPress() {
         
-        chatTextField.resignFirstResponder()
         guard let messageText = chatTextField.text, !messageText.isEmpty else { return }
         let timeInterval = Date().timeIntervalSince1970
-        print(timeInterval.description)
-        toMyFrendsPostsRef.setValue([Int(timeInterval).description:messageText])
+        myPosts.append(Post(time: timeInterval, text: messageText))
+        chatTextField.text = ""
+        var dict: [String: String] = [:]
+        for item in myPosts {
+            dict[Int(item.time).description] = item.text
+        }
+        toMyFrendsPostsRef.setValue(dict)
     }
     
     private func addChatTableView() {
         chatTableView = UITableView()
+        chatTableView.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        chatTableView.separatorStyle = .none
         chatTableView.translatesAutoresizingMaskIntoConstraints = false
-        chatTableView.register(UITableViewCell.self, forCellReuseIdentifier: "chatCell")
+        chatTableView.register(ChatTableViewCell.self, forCellReuseIdentifier: "chatCell")
         view.addSubview(chatTableView)
     }
     
@@ -122,6 +145,7 @@ class ChatViewController: UIViewController {
         chatSendButton.setTitleColor(.red, for: .normal)
         chatSendButton.backgroundColor = .white
         chatSendButton.addTarget(self, action: #selector(chatSendButtonPress), for: .touchUpInside)
+        chatSendButton.layer.cornerRadius = 5
         chatSendButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(chatSendButton)
     }
@@ -130,14 +154,14 @@ class ChatViewController: UIViewController {
         chatTableView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         chatTableView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         chatTableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
-        chatTableView.bottomAnchor.constraint(equalTo: chatTextField.topAnchor).isActive = true
+        chatTableView.bottomAnchor.constraint(equalTo: chatTextField.topAnchor, constant: -8).isActive = true
         
         chatTextField.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 8).isActive = true
-        chatTextField.rightAnchor.constraint(equalTo: chatSendButton.leftAnchor).isActive = true
+        chatTextField.rightAnchor.constraint(equalTo: chatSendButton.leftAnchor, constant: -8).isActive = true
         chatTextField.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8).isActive = true
         
         chatSendButton.topAnchor.constraint(equalTo: chatTextField.topAnchor).isActive = true
-        chatSendButton.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        chatSendButton.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -8).isActive = true
         chatSendButton.bottomAnchor.constraint(equalTo: chatTextField.bottomAnchor).isActive = true
         chatSendButton.widthAnchor.constraint(equalToConstant: 60).isActive = true
         chatSendButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
@@ -161,9 +185,17 @@ extension ChatViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "chatCell", for: indexPath)
-        cell.textLabel?.text = myPosts[indexPath.row].text
-        cell.detailTextLabel?.text = myPosts[indexPath.row].time.description
+        let cell = tableView.dequeueReusableCell(withIdentifier: "chatCell", for: indexPath) as! ChatTableViewCell
+        cell.messText = myPosts[indexPath.row].text
+        cell.messTime = myPosts[indexPath.row].time
         return cell
+    }
+}
+
+extension ChatViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        chatTextField.resignFirstResponder()
     }
 }
