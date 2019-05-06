@@ -55,25 +55,25 @@ class ChatViewController: UIViewController {
         
         toMyFrendsPostsRef.observe(.value) { [weak self] (snapshot) in
             self?.myPosts = []
-//            print("snapshot posts = \(snapshot)")
-            let dict = snapshot.value as? [String: String] ?? [:]
-//            print("dict = \(dict)")
-            for item in dict {
-                self?.myPosts.append(Post(time: TimeInterval(Int(item.key)!) , text: item.value))
+            //            print("snapshot posts = \(snapshot)")
+            if let dict = snapshot.value as? [String: String] {
+                //            print("dict = \(dict)")
+                for item in dict {
+                    self?.myPosts.append(Post(time: TimeInterval(Int(item.key)!) , text: item.value))
+                }
+                
+                self?.myPosts.sort(by: { (m1, m2) -> Bool in
+                    return m1.time < m2.time
+                })
+                
+                //            print("myPosts = \(self?.myPosts)")
+                self?.chatTableView.reloadData()
+                
+                if let numberRows = self?.myPosts.count {
+                    let scrollRow = numberRows == 0 ? 0 : numberRows - 1
+                    self?.chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
+                }
             }
-            
-            self?.myPosts.sort(by: { (m1, m2) -> Bool in
-                return m1.time < m2.time
-            })
-            
-//            print("myPosts = \(self?.myPosts)")
-            self?.chatTableView.reloadData()
-            
-            if let numberRows = self?.myPosts.count {
-                let scrollRow = numberRows == 0 ? 0 : numberRows - 1
-                self?.chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
-            }
-            
             self?.removeLoadingView()
         }
     }
