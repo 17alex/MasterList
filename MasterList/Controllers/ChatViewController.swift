@@ -100,7 +100,9 @@ class ChatViewController: UIViewController {
         }) { [weak self] (_) in
             if let numberRows = self?.myPosts.count {
                 let scrollRow = numberRows == 0 ? 0 : numberRows - 1
-                self?.chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
+                if scrollRow > 0 {
+                    self?.chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
+                }
             }
         }
     }
