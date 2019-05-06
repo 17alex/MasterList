@@ -22,6 +22,7 @@ class AllUsersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        title = "addFrends"
         addUsersTableView()
         addConstraints()
         
@@ -36,7 +37,6 @@ class AllUsersViewController: UIViewController {
         }
         currentUser = MyUser(user: user)
         print("user exist = \(currentUser.uid)")
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -56,14 +56,26 @@ class AllUsersViewController: UIViewController {
                     self?.allUsers.append(myUser)
                 }
             }
+            
+            self?.allUsers.sort(by: { (u1, u2) -> Bool in
+                return u1.name < u2.name
+            })
+            
             self?.allUsersTableView.reloadData()
         }
         
-        myUsersRef = Database.database().reference().child("users").child("list").child(currentUser.uid).child("myUsers")
+        myUsersRef = Database.database().reference().child("users").child("list").child(currentUser.uid).child("frends")
         
         myUsersRef.observe(.value) { [weak self] (snapshot) in
-            self?.myUsers = snapshot.value as? [String: String] ?? [:]
-            self?.allUsersTableView.reloadData()
+            self?.myUsers = [:]
+            for item in snapshot.children {
+                let snap = item as! DataSnapshot
+                let snapValue = snap.value as! [String: AnyObject]
+                let uid = snapValue["uid"] as! String
+                let name = snapValue["name"] as! String
+                self?.myUsers[uid] = name
+                self?.allUsersTableView.reloadData()
+            }
         }
     }
     
@@ -111,15 +123,12 @@ extension AllUsersViewController: UITableViewDelegate {
         let cell = tableView.cellForRow(at: indexPath)
         let selectMyUser = allUsers[indexPath.row]
         if cell?.accessoryType == .checkmark {
-            myUsers.removeValue(forKey: selectMyUser.uid)
+            myUsersRef.child(selectMyUser.uid).removeValue()
         } else {
-            myUsers[selectMyUser.uid] = selectMyUser.name
+            myUsersRef.child(selectMyUser.uid).setValue(["name": selectMyUser.name, "uid": selectMyUser.uid])
         }
-        myUsersRef.setValue(myUsers)
-        tableView.deselectRow(at: indexPath, animated: true)
         
+        tableView.deselectRow(at: indexPath, animated: true)
     }
-    
-    
 }
 

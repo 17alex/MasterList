@@ -18,11 +18,15 @@ class MyUsersViewController: UIViewController {
     private var myUsers: [MyUser] = []
     private var currentMyUser: MyUser!
     
+    deinit {
+        myUsersRef.removeAllObservers()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         navigationController?.setNavigationBarHidden(false, animated: true)
-        
+        title = "myFrends"
         configNavController()
         addUsersTableView()
         addConstraints()
@@ -36,10 +40,6 @@ class MyUsersViewController: UIViewController {
         }
         print("MyUsersViewController user exist")
         currentMyUser = MyUser(user: currentUser)
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
         
         showLoadingView()
         // как JSON декодировать попробовать
@@ -47,9 +47,9 @@ class MyUsersViewController: UIViewController {
         
         myUsersRef.observe(.value) { [weak self] (snapshot) in
             self?.myUsers = []
-//            print("snapshot = \(snapshot)")
+            //            print("snapshot = \(snapshot)")
             let dict = snapshot.value as? [String: Any] ?? [:]
-//            print("dict = \(dict)")
+            //            print("dict = \(dict)")
             for item in dict {
                 let dic = item.value as? [String: Any] ?? [:]
                 let id = dic["uid"] as! String
@@ -66,10 +66,16 @@ class MyUsersViewController: UIViewController {
         }
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+
+    }
+    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(true)
         
-        myUsersRef.removeAllObservers()
+//        myUsersRef.removeAllObservers()
     }
     
     private func configNavController() {
@@ -140,7 +146,7 @@ extension MyUsersViewController: UITableViewDataSource {
 extension MyUsersViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // index
+        tableView.deselectRow(at: indexPath, animated: true)
         let frend = myUsers[indexPath.row]
         navigationController?.pushViewController(ChatViewController(myFrend: frend), animated: true)
     }
