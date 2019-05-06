@@ -17,39 +17,36 @@ class ChatTableViewCell: UITableViewCell {
     
     var messText: String = ""
     var messTime: TimeInterval = 0
+    
+    override func setSelected(_ selected: Bool, animated: Bool) {
+        super.setSelected(selected, animated: animated)
 
-    override func draw(_ rect: CGRect) {
-        super.draw(rect)
+        messTextLabel.text = messText
+        messTimeLabel.text = dateToString(format: "dd:MM:yy HH:mm:ss", timeInterval: messTime)
+    }
+
+    override func didMoveToSuperview() {
+        super.didMoveToSuperview()
         print(#function)
-        addMainView(frame: rect)
+        
+        addMainView(frame: self.frame)
         addMessTextLabel()
         addMessTimeLabel()
         addConstraints()
     }
     
-    override func didMoveToSuperview() {
-        super.didMoveToSuperview()
-        print(#function)
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        print(#function)
-        
-        messTextLabel.text = messText
-        messTimeLabel.text = dateToString(format: "dd:MM:yy HH:mm:ss", timeInterval: messTime)
-    }
-    
-    
     private func addMainView(frame: CGRect) {
-        mainView = UIView(frame: CGRect(x: frame.origin.x + 1, y: frame.origin.y + 1, width: frame.width - 2, height: frame.height - 2))
+        mainView = UIView(frame: CGRect(x: frame.origin.x + 8, y: frame.origin.y + 1, width: frame.width - 16, height: frame.height - 2))
         mainView.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        mainView.layer.cornerRadius = 5
+        mainView.layer.borderWidth = 1
+        mainView.layer.borderColor = UIColor.darkGray.cgColor
         addSubview(mainView)
     }
     
     private func addMessTextLabel() {
         messTextLabel = UILabel()
-        messTextLabel.textColor = .darkGray
+        messTextLabel.textColor = .black
         messTextLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         messTextLabel.translatesAutoresizingMaskIntoConstraints = false
         mainView.addSubview(messTextLabel)
@@ -57,7 +54,7 @@ class ChatTableViewCell: UITableViewCell {
     
     private func addMessTimeLabel() {
         messTimeLabel = UILabel()
-        messTimeLabel.textColor = .blue
+        messTimeLabel.textColor = .darkGray
         messTimeLabel.font = UIFont.systemFont(ofSize: 8, weight: .regular)
         messTimeLabel.translatesAutoresizingMaskIntoConstraints = false
         mainView.addSubview(messTimeLabel)

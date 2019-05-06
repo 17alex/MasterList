@@ -12,6 +12,7 @@ import Firebase
 class MyUsersViewController: UIViewController {
 
     private var myUsersTableView: UITableView!
+    private var loadingView: LoadingView!
     
     private var myUsersRef: DatabaseReference!
     private var myUsers: [MyUser] = []
@@ -21,6 +22,7 @@ class MyUsersViewController: UIViewController {
         super.viewDidLoad()
 
         navigationController?.setNavigationBarHidden(false, animated: true)
+        
         configNavController()
         addUsersTableView()
         addConstraints()
@@ -36,17 +38,18 @@ class MyUsersViewController: UIViewController {
         currentMyUser = MyUser(user: currentUser)
     }
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillAppear(true)
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         
+        showLoadingView()
         // как JSON декодировать попробовать
         myUsersRef = Database.database().reference().child("users").child("list").child(currentMyUser.uid).child("frends")
         
         myUsersRef.observe(.value) { [weak self] (snapshot) in
             self?.myUsers = []
-            print("snapshot = \(snapshot)")
+//            print("snapshot = \(snapshot)")
             let dict = snapshot.value as? [String: Any] ?? [:]
-            print("dict = \(dict)")
+//            print("dict = \(dict)")
             for item in dict {
                 let dic = item.value as? [String: Any] ?? [:]
                 let id = dic["uid"] as! String
@@ -54,6 +57,11 @@ class MyUsersViewController: UIViewController {
                 let myUser = MyUser(uid: id, name: name)
                 self?.myUsers.append(myUser)
             }
+            
+            self?.myUsers.sort(by: { (u1, u2) -> Bool in
+                return u1.name < u2.name
+            })
+            self?.removeLoadingView()
             self?.myUsersTableView.reloadData()
         }
     }
@@ -90,19 +98,29 @@ class MyUsersViewController: UIViewController {
         let allUsersVC = AllUsersViewController()
         navigationController?.pushViewController(allUsersVC, animated: true)
     }
-
+    
     private func addUsersTableView() {
         myUsersTableView = UITableView()
         myUsersTableView.translatesAutoresizingMaskIntoConstraints = false
         myUsersTableView.register(UITableViewCell.self, forCellReuseIdentifier: "usersList")
         view.addSubview(myUsersTableView)
     }
-
+    
     private func addConstraints() {
         myUsersTableView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         myUsersTableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
         myUsersTableView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         myUsersTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+    }
+    
+    private func showLoadingView() {
+        loadingView = LoadingView()
+        view.addSubview(loadingView)
+        loadingView.center = view.center
+    }
+    
+    private func removeLoadingView() {
+        loadingView.removeFromSuperview()
     }
 }
 

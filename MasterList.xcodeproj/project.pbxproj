@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8484AB50228006EF00084518 /* TableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8484AB4F228006EF00084518 /* TableViewCell.swift */; };
+		8484AB5222802A2E00084518 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8484AB5122802A2E00084518 /* LoadingView.swift */; };
 		849298D5221EA27D002BEFBF /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849298D4221EA27D002BEFBF /* Task.swift */; };
 		849298D7221EA28C002BEFBF /* myUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849298D6221EA28C002BEFBF /* myUser.swift */; };
 		84A425812276D83200D42873 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A425802276D83200D42873 /* ChatViewController.swift */; };
@@ -27,6 +29,8 @@
 
 /* Begin PBXFileReference section */
 		4E05B31DE725A2AD5755ADB7 /* Pods_MasterList.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MasterList.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8484AB4F228006EF00084518 /* TableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewCell.swift; sourceTree = "<group>"; };
+		8484AB5122802A2E00084518 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		849298D4221EA27D002BEFBF /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		849298D6221EA28C002BEFBF /* myUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = myUser.swift; sourceTree = "<group>"; };
 		84A425802276D83200D42873 /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
@@ -86,9 +90,11 @@
 				84F47C902265D2BE005CC276 /* MyUsersViewController.swift */,
 				84A425802276D83200D42873 /* ChatViewController.swift */,
 				84C692A7227842CF0074D3E7 /* ChatTableViewCell.swift */,
+				8484AB4F228006EF00084518 /* TableViewCell.swift */,
 				84F47C9222660457005CC276 /* AllUsersViewController.swift */,
 				8D6BFCEF221C78FA00A009F4 /* ListViewController.swift */,
 				84F34EF9226473D9004F03F9 /* ProfileViewController.swift */,
+				8484AB5122802A2E00084518 /* LoadingView.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -262,7 +268,9 @@
 				8D6BFCF0221C78FA00A009F4 /* ListViewController.swift in Sources */,
 				849298D7221EA28C002BEFBF /* myUser.swift in Sources */,
 				84A425812276D83200D42873 /* ChatViewController.swift in Sources */,
+				8484AB50228006EF00084518 /* TableViewCell.swift in Sources */,
 				8D0EEF85221C764300E72042 /* AppDelegate.swift in Sources */,
+				8484AB5222802A2E00084518 /* LoadingView.swift in Sources */,
 				84A425852277246A00D42873 /* Post.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

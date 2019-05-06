@@ -14,6 +14,7 @@ class ChatViewController: UIViewController {
     private var chatTableView: UITableView!
     private var chatTextField: UITextField!
     private var chatSendButton: UIButton!
+    private var loadingView: LoadingView!
     
     private var toMyFrendsPostsRef: DatabaseReference!
     private var myFrend: MyUser!
@@ -28,7 +29,7 @@ class ChatViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        view.backgroundColor = .white
         
         guard let fbUser = Auth.auth().currentUser else { return } // TODO: - dismiss
         currentMyUser = MyUser(user: fbUser)
@@ -47,6 +48,8 @@ class ChatViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+        showLoadingView()
+        
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardShow(notification:)), name: UIApplication.keyboardDidShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardHide), name: UIApplication.keyboardDidHideNotification, object: nil)
         
@@ -54,7 +57,7 @@ class ChatViewController: UIViewController {
             self?.myPosts = []
 //            print("snapshot posts = \(snapshot)")
             let dict = snapshot.value as? [String: String] ?? [:]
-            print("dict = \(dict)")
+//            print("dict = \(dict)")
             for item in dict {
                 self?.myPosts.append(Post(time: TimeInterval(Int(item.key)!) , text: item.value))
             }
@@ -62,13 +65,16 @@ class ChatViewController: UIViewController {
             self?.myPosts.sort(by: { (m1, m2) -> Bool in
                 return m1.time < m2.time
             })
-            print("myPosts = \(self?.myPosts)")
+            
+//            print("myPosts = \(self?.myPosts)")
             self?.chatTableView.reloadData()
             
             if let numberRows = self?.myPosts.count {
                 let scrollRow = numberRows == 0 ? 0 : numberRows - 1
                 self?.chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
             }
+            
+            self?.removeLoadingView()
         }
     }
     
@@ -124,7 +130,7 @@ class ChatViewController: UIViewController {
     
     private func addChatTableView() {
         chatTableView = UITableView()
-        chatTableView.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        chatTableView.backgroundColor = .white
         chatTableView.separatorStyle = .none
         chatTableView.translatesAutoresizingMaskIntoConstraints = false
         chatTableView.register(ChatTableViewCell.self, forCellReuseIdentifier: "chatCell")
@@ -133,7 +139,7 @@ class ChatViewController: UIViewController {
     
     private func addChatTextField() {
         chatTextField = UITextField()
-        chatTextField.backgroundColor = .white
+        chatTextField.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
         chatTextField.borderStyle = .roundedRect
         chatTextField.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(chatTextField)
@@ -143,7 +149,7 @@ class ChatViewController: UIViewController {
         chatSendButton = UIButton()
         chatSendButton.setTitle("Send", for: .normal)
         chatSendButton.setTitleColor(.red, for: .normal)
-        chatSendButton.backgroundColor = .white
+        chatSendButton.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
         chatSendButton.addTarget(self, action: #selector(chatSendButtonPress), for: .touchUpInside)
         chatSendButton.layer.cornerRadius = 5
         chatSendButton.translatesAutoresizingMaskIntoConstraints = false
@@ -167,6 +173,15 @@ class ChatViewController: UIViewController {
         chatSendButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
     }
 
+    private func showLoadingView() {
+        loadingView = LoadingView()
+        view.addSubview(loadingView)
+        loadingView.center = view.center
+    }
+    
+    private func removeLoadingView() {
+        loadingView.removeFromSuperview()
+    }
 }
 
 extension ChatViewController: UITextFieldDelegate {
@@ -176,7 +191,6 @@ extension ChatViewController: UITextFieldDelegate {
 //        return true
 //    }
 }
-
 
 extension ChatViewController: UITableViewDataSource {
     
@@ -197,5 +211,9 @@ extension ChatViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         chatTextField.resignFirstResponder()
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 44
     }
 }
