@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		84774BF4228147E300A1ED74 /* FireBaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84774BF3228147E300A1ED74 /* FireBaseManager.swift */; };
 		8484AB5222802A2E00084518 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8484AB5122802A2E00084518 /* LoadingView.swift */; };
 		849298D5221EA27D002BEFBF /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849298D4221EA27D002BEFBF /* Task.swift */; };
 		849298D7221EA28C002BEFBF /* myUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849298D6221EA28C002BEFBF /* myUser.swift */; };
@@ -27,6 +28,7 @@
 
 /* Begin PBXFileReference section */
 		4E05B31DE725A2AD5755ADB7 /* Pods_MasterList.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MasterList.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		84774BF3228147E300A1ED74 /* FireBaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireBaseManager.swift; sourceTree = "<group>"; };
 		8484AB5122802A2E00084518 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		849298D4221EA27D002BEFBF /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		849298D6221EA28C002BEFBF /* myUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = myUser.swift; sourceTree = "<group>"; };
@@ -90,6 +92,7 @@
 				8D6BFCEF221C78FA00A009F4 /* ListViewController.swift */,
 				84F34EF9226473D9004F03F9 /* ProfileViewController.swift */,
 				8484AB5122802A2E00084518 /* LoadingView.swift */,
+				84774BF3228147E300A1ED74 /* FireBaseManager.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -263,6 +266,7 @@
 				849298D7221EA28C002BEFBF /* myUser.swift in Sources */,
 				84A425812276D83200D42873 /* ChatViewController.swift in Sources */,
 				8D0EEF85221C764300E72042 /* AppDelegate.swift in Sources */,
+				84774BF4228147E300A1ED74 /* FireBaseManager.swift in Sources */,
 				8484AB5222802A2E00084518 /* LoadingView.swift in Sources */,
 				84A425852277246A00D42873 /* Post.swift in Sources */,
 			);
@@ -406,12 +410,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = PSSGUD5C34;
 				INFOPLIST_FILE = MasterList/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = Home.MasterList;
+				PRODUCT_BUNDLE_IDENTIFIER = Home.MasterList1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -426,12 +430,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = PSSGUD5C34;
 				INFOPLIST_FILE = MasterList/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = Home.MasterList;
+				PRODUCT_BUNDLE_IDENTIFIER = Home.MasterList1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

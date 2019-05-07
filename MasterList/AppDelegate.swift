@@ -22,10 +22,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.makeKeyAndVisible()
 
         let controller = LoginViewController()
-//        let controller = ChatViewController()
         let navConroller = UINavigationController(rootViewController: controller)
         window?.rootViewController = navConroller
-//        navConroller.navigationBar.barTintColor = #colorLiteral(red: 0.7450980544, green: 0.1568627506, blue: 0.07450980693, alpha: 1)
         navConroller.navigationBar.tintColor = #colorLiteral(red: 0, green: 0.5898008943, blue: 1, alpha: 1)
 
         return true
