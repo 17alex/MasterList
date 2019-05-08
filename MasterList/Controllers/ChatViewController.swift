@@ -24,6 +24,10 @@ class ChatViewController: UIViewController {
         self.myFrend = myFrend
     }
     
+    deinit {
+        FireBaseManager.shared.removeChatObserver(forUser: myFrend)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -55,7 +59,7 @@ class ChatViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardShow(notification:)), name: UIApplication.keyboardDidShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardHide), name: UIApplication.keyboardDidHideNotification, object: nil)
         
-        FireBaseManager.shared.onChatObserve(forUser: myFrend) { [weak self] (posts) in
+        FireBaseManager.shared.createChatObserver(forUser: myFrend) { [weak self] (posts) in
             self?.myPosts = posts
             self?.myPosts.sort(by: { (m1, m2) -> Bool in
                 return m1.time < m2.time
@@ -63,7 +67,9 @@ class ChatViewController: UIViewController {
             self?.chatTableView.reloadData()
             if let numberRows = self?.myPosts.count {
                 let scrollRow = numberRows == 0 ? 0 : numberRows - 1
-                self?.chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
+                if scrollRow > 0 {
+                    self?.chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
+                }
             }
             self?.removeLoadingView()
         }
@@ -118,7 +124,7 @@ class ChatViewController: UIViewController {
         for item in myPosts {
             dict[Int(item.time).description] = item.text
         }
-        FireBaseManager.shared.setValue(dict: dict, forUser: myFrend)
+        FireBaseManager.shared.set(posts: dict, forUser: myFrend)
     }
     
     private func addChatTableView() {

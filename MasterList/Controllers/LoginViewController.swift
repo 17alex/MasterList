@@ -50,7 +50,7 @@ class LoginViewController: UIViewController {
         
         if FireBaseManager.shared.currentMyUser != nil {
             print("user exist")
-            goToListViewController()
+            goToMyUsersViewController()
         } else {
             print("user nil")
             loginTextField.becomeFirstResponder()
@@ -171,7 +171,7 @@ class LoginViewController: UIViewController {
         lineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
     }
     
-    private func goToListViewController() {
+    private func goToMyUsersViewController() {
         let viewController = MyUsersViewController()
         print("list")
         navigationController?.pushViewController(viewController, animated: true)
@@ -211,7 +211,7 @@ class LoginViewController: UIViewController {
             case .error(let errText):
                 self?.showWarningLabel(withText: errText)
             case .success:
-                self?.goToListViewController()
+                self?.goToMyUsersViewController()
             }
             self?.activityIndicatorView.stopAnimating()
         }
@@ -234,7 +234,7 @@ class LoginViewController: UIViewController {
             case .success:
                 self?.presentAlertForEnterName(complition: { [weak self] (name) in
                     FireBaseManager.shared.save(userName: name)
-                    self?.goToListViewController()
+                    self?.goToMyUsersViewController()
                 })
             }
             self?.activityIndicatorView.stopAnimating()

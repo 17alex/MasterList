@@ -7,17 +7,21 @@
 //
 
 import UIKit
-import Firebase
 
 class AllUsersViewController: UIViewController {
 
     private var allUsersTableView: UITableView!
+    private var loadingView: LoadingView!
     
-    private var allUsersRef: DatabaseReference!
-    private var myUsersRef: DatabaseReference!
-    private var currentUser: MyUser!
+    private var currentMyUser: MyUser!
     private var allUsers: [MyUser] = []
     private var myUsers: [String: String] = [:]
+    
+    deinit {
+        print("AllUsersViewController -> deinit")
+        FireBaseManager.shared.removeAllUsersObserver()
+        FireBaseManager.shared.removeFrensObserver()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,60 +33,39 @@ class AllUsersViewController: UIViewController {
         allUsersTableView.dataSource = self
         allUsersTableView.delegate = self
         
-        guard let user = Auth.auth().currentUser else {
+        guard let currMyUser = FireBaseManager.shared.currentMyUser else {
             navigationItem.title = "error"
             print("MyUsersViewController not user")
-            // dismiss  // TODO: - fix dismiss
             return
+            // dismiss  // TODO: - fix dismiss
         }
-        currentUser = MyUser(user: user)
-        print("user exist = \(currentUser.uid)")
+        currentMyUser = currMyUser
+        print("user exist = \(currentMyUser.uid)")
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
+        print("AllUsersViewController -> viewWillAppear")
         
-        allUsersRef = Database.database().reference().child("users").child("list")
-
-        allUsersRef.observe(.value) { [weak self] (snapshot) in
-            self?.allUsers = []
-            for item in snapshot.children {
-                let snap = item as! DataSnapshot
-                let snapValue = snap.value as! [String: AnyObject]
-                let uid = snapValue["uid"] as! String
-                let name = snapValue["name"] as! String
-                let myUser = MyUser(uid: uid, name: name)
-                if myUser.uid != self?.currentUser.uid {
-                    self?.allUsers.append(myUser)
-                }
-            }
-            
+        showLoadingView()
+        FireBaseManager.shared.createAllUsersObserver { [weak self] (allUsers) in
+            self?.allUsers = allUsers
             self?.allUsers.sort(by: { (u1, u2) -> Bool in
                 return u1.name < u2.name
             })
-            
+            self?.removeLoadingView()
             self?.allUsersTableView.reloadData()
         }
         
-        myUsersRef = Database.database().reference().child("users").child("list").child(currentUser.uid).child("frends")
-        
-        myUsersRef.observe(.value) { [weak self] (snapshot) in
-            self?.myUsers = [:]
-            for item in snapshot.children {
-                let snap = item as! DataSnapshot
-                let snapValue = snap.value as! [String: AnyObject]
-                let uid = snapValue["uid"] as! String
-                let name = snapValue["name"] as! String
-                self?.myUsers[uid] = name
-                self?.allUsersTableView.reloadData()
-            }
+        FireBaseManager.shared.createFrendsObserverD { [weak self] (myFrends) in
+            self?.myUsers = myFrends
+            self?.allUsersTableView.reloadData()
         }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        
-        allUsersRef.removeAllObservers()
+        print("AllUsersViewController -> viewDidDisappear")
     }
     
     private func addUsersTableView() {
@@ -97,6 +80,16 @@ class AllUsersViewController: UIViewController {
         allUsersTableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
         allUsersTableView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         allUsersTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+    }
+    
+    private func showLoadingView() {
+        loadingView = LoadingView()
+        view.addSubview(loadingView)
+        loadingView.center = view.center
+    }
+    
+    private func removeLoadingView() {
+        loadingView.removeFromSuperview()
     }
 }
 
@@ -122,10 +115,11 @@ extension AllUsersViewController: UITableViewDelegate {
         
         let cell = tableView.cellForRow(at: indexPath)
         let selectMyUser = allUsers[indexPath.row]
+        
         if cell?.accessoryType == .checkmark {
-            myUsersRef.child(selectMyUser.uid).removeValue()
+            FireBaseManager.shared.remove(frend: selectMyUser)
         } else {
-            myUsersRef.child(selectMyUser.uid).setValue(["name": selectMyUser.name, "uid": selectMyUser.uid])
+            FireBaseManager.shared.add(frend: selectMyUser)
         }
         
         tableView.deselectRow(at: indexPath, animated: true)

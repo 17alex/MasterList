@@ -13,12 +13,12 @@ class MyUsersViewController: UIViewController {
     private var myUsersTableView: UITableView!
     private var loadingView: LoadingView!
     
-    
     private var myUsers: [MyUser] = []
     private var currentMyUser: MyUser?
     
     deinit {
-        FireBaseManager.shared.offFrensObserve()
+        print("MyUsersViewController -> deinit")
+        FireBaseManager.shared.removeFrensObserver()
     }
     
     override func viewDidLoad() {
@@ -38,11 +38,15 @@ class MyUsersViewController: UIViewController {
             return
         }
         currentMyUser = currMyUser
-        print("MyUsersViewController user exist = \(currentMyUser?.uid.description): \(currentMyUser?.name.description)")
-        
+        print("MyUsersViewController user exist")
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        print("MyUsersViewController -> viewDidAppear")
+
         showLoadingView()
-        
-        FireBaseManager.shared.onFrendsObserve { [weak self] (myUsers) in
+        FireBaseManager.shared.createFrendsObserver { [weak self] (myUsers) in
             self?.myUsers = myUsers
             self?.myUsers.sort(by: { (u1, u2) -> Bool in
                 return u1.name < u2.name
@@ -52,16 +56,9 @@ class MyUsersViewController: UIViewController {
         }
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-
-    }
-    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(true)
-        
-//        myUsersRef.removeAllObservers()
+        print("MyUsersViewController -> viewDidDisappear")
     }
     
     private func configNavController() {
