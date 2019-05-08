@@ -7,19 +7,18 @@
 //
 
 import UIKit
-import Firebase
 
 class MyUsersViewController: UIViewController {
 
     private var myUsersTableView: UITableView!
     private var loadingView: LoadingView!
     
-    private var myUsersRef: DatabaseReference!
+    
     private var myUsers: [MyUser] = []
-    private var currentMyUser: MyUser!
+    private var currentMyUser: MyUser?
     
     deinit {
-        myUsersRef.removeAllObservers()
+        FireBaseManager.shared.offFrensObserve()
     }
     
     override func viewDidLoad() {
@@ -33,31 +32,18 @@ class MyUsersViewController: UIViewController {
         myUsersTableView.dataSource = self
         myUsersTableView.delegate = self
 
-        guard let currentUser = Auth.auth().currentUser else {
+        guard let currMyUser = FireBaseManager.shared.currentMyUser else {
             navigationItem.title = "error"
             print("MyUsersViewController not user")
             return
         }
-        print("MyUsersViewController user exist")
-        currentMyUser = MyUser(user: currentUser)
+        currentMyUser = currMyUser
+        print("MyUsersViewController user exist = \(currentMyUser?.uid.description): \(currentMyUser?.name.description)")
         
         showLoadingView()
-        // как JSON декодировать попробовать
-        myUsersRef = Database.database().reference().child("users").child("list").child(currentMyUser.uid).child("frends")
         
-        myUsersRef.observe(.value) { [weak self] (snapshot) in
-            self?.myUsers = []
-            //            print("snapshot = \(snapshot)")
-            let dict = snapshot.value as? [String: Any] ?? [:]
-            //            print("dict = \(dict)")
-            for item in dict {
-                let dic = item.value as? [String: Any] ?? [:]
-                let id = dic["uid"] as! String
-                let name = dic["name"] as! String
-                let myUser = MyUser(uid: id, name: name)
-                self?.myUsers.append(myUser)
-            }
-            
+        FireBaseManager.shared.onFrendsObserve { [weak self] (myUsers) in
+            self?.myUsers = myUsers
             self?.myUsers.sort(by: { (u1, u2) -> Bool in
                 return u1.name < u2.name
             })
@@ -90,11 +76,8 @@ class MyUsersViewController: UIViewController {
     @objc
     private func signOutButton() {
         
-        do {
-            try Auth.auth().signOut()
+        FireBaseManager.shared.userSignOut {
             navigationController?.popViewController(animated: true)
-        } catch {
-            print("error = \(error.localizedDescription)")
         }
     }
     

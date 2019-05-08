@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		84774BF4228147E300A1ED74 /* FireBaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84774BF3228147E300A1ED74 /* FireBaseManager.swift */; };
+		84774BF6228187C500A1ED74 /* AuchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84774BF5228187C500A1ED74 /* AuchResult.swift */; };
 		8484AB5222802A2E00084518 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8484AB5122802A2E00084518 /* LoadingView.swift */; };
 		849298D5221EA27D002BEFBF /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849298D4221EA27D002BEFBF /* Task.swift */; };
 		849298D7221EA28C002BEFBF /* myUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849298D6221EA28C002BEFBF /* myUser.swift */; };
@@ -29,6 +30,7 @@
 /* Begin PBXFileReference section */
 		4E05B31DE725A2AD5755ADB7 /* Pods_MasterList.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MasterList.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		84774BF3228147E300A1ED74 /* FireBaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireBaseManager.swift; sourceTree = "<group>"; };
+		84774BF5228187C500A1ED74 /* AuchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuchResult.swift; sourceTree = "<group>"; };
 		8484AB5122802A2E00084518 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
 		849298D4221EA27D002BEFBF /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		849298D6221EA28C002BEFBF /* myUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = myUser.swift; sourceTree = "<group>"; };
@@ -77,6 +79,7 @@
 				849298D4221EA27D002BEFBF /* Task.swift */,
 				849298D6221EA28C002BEFBF /* myUser.swift */,
 				84A425842277246A00D42873 /* Post.swift */,
+				84774BF5228187C500A1ED74 /* AuchResult.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -269,6 +272,7 @@
 				84774BF4228147E300A1ED74 /* FireBaseManager.swift in Sources */,
 				8484AB5222802A2E00084518 /* LoadingView.swift in Sources */,
 				84A425852277246A00D42873 /* Post.swift in Sources */,
+				84774BF6228187C500A1ED74 /* AuchResult.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

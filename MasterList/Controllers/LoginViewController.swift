@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Firebase
 
 class LoginViewController: UIViewController {
 
@@ -19,8 +18,6 @@ class LoginViewController: UIViewController {
     private var errorLabel: UILabel!
     private var activityIndicatorView: UIActivityIndicatorView!
     private var lineView: UIView!
-    
-    private var ref: DatabaseReference!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,13 +43,12 @@ class LoginViewController: UIViewController {
         navigationController?.setNavigationBarHidden(true, animated: true)
         loginTextField.text = ""
         passwordtextField.text = ""
-        ref = Database.database().reference()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
-        if Auth.auth().currentUser != nil {
+        if FireBaseManager.shared.currentMyUser != nil {
             print("user exist")
             goToListViewController()
         } else {
@@ -65,8 +61,8 @@ class LoginViewController: UIViewController {
         nameLabel = UILabel()
         nameLabel.font = UIFont.systemFont(ofSize: 30, weight: .light)
         nameLabel.textAlignment = .center
-        nameLabel.text = "Master list"
-        nameLabel.textColor = .black
+        nameLabel.text = "Master List"
+        nameLabel.textColor = .red
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(nameLabel)
     }
@@ -209,18 +205,14 @@ class LoginViewController: UIViewController {
         }
         
         activityIndicatorView.startAnimating()
-        Auth.auth().signIn(withEmail: login, password: pass) { [weak self] (result, error) in
-            
-            if let error = error {
-                self?.showWarningLabel(withText: error.localizedDescription)
-                
-            } else if result?.user != nil {
+        
+        FireBaseManager.shared.userSignIn(withEmail: login, password: pass) { [weak self] (fbError) in
+            switch fbError {
+            case .error(let errText):
+                self?.showWarningLabel(withText: errText)
+            case .success:
                 self?.goToListViewController()
-                
-            } else {
-                self?.showWarningLabel(withText: "User not exist")
             }
-            
             self?.activityIndicatorView.stopAnimating()
         }
     }
@@ -234,18 +226,17 @@ class LoginViewController: UIViewController {
         }
         
         activityIndicatorView.startAnimating()
-        Auth.auth().createUser(withEmail: login, password: pass) { [weak self] (result, error) in
-            
-            if let error = error {
-                self?.showWarningLabel(withText: error.localizedDescription)
-                
-            } else if let user = result?.user {
-                self?.presentAlertForEnterName(complition: { (name) in
-                    self?.ref.child("users").child("list") .child(user.uid).setValue(["name": name, "uid": user.uid])
+        
+        FireBaseManager.shared.userSignUp(withEmail: login, password: pass) { [weak self] (fbError) in
+            switch fbError {
+            case .error(let errText):
+                self?.showWarningLabel(withText: errText)
+            case .success:
+                self?.presentAlertForEnterName(complition: { [weak self] (name) in
+                    FireBaseManager.shared.save(userName: name)
                     self?.goToListViewController()
                 })
             }
-            
             self?.activityIndicatorView.stopAnimating()
         }
     }

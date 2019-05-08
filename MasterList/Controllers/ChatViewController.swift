@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Firebase
 
 class ChatViewController: UIViewController {
     
@@ -16,7 +15,6 @@ class ChatViewController: UIViewController {
     private var chatSendButton: UIButton!
     private var loadingView: LoadingView!
     
-    private var toMyFrendsPostsRef: DatabaseReference!
     private var myFrend: MyUser!
     private var currentMyUser: MyUser!
     private var myPosts: [Post] = []
@@ -31,9 +29,13 @@ class ChatViewController: UIViewController {
         
         view.backgroundColor = .white
         
-        guard let fbUser = Auth.auth().currentUser else { return } // TODO: - dismiss
-        currentMyUser = MyUser(user: fbUser)
-        toMyFrendsPostsRef = Database.database().reference().child("users").child("list").child(currentMyUser.uid).child("frends").child(myFrend.uid).child("posts")
+        guard let currMyUser = FireBaseManager.shared.currentMyUser else {
+            navigationItem.title = "error"
+            print("MyUsersViewController not user")
+            return
+            // TODO: - Dissmis
+        }
+        currentMyUser = currMyUser
         
         addChatTableView()
         addChatTextField()
@@ -53,31 +55,20 @@ class ChatViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardShow(notification:)), name: UIApplication.keyboardDidShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardHide), name: UIApplication.keyboardDidHideNotification, object: nil)
         
-        toMyFrendsPostsRef.observe(.value) { [weak self] (snapshot) in
-            self?.myPosts = []
-            //            print("snapshot posts = \(snapshot)")
-            if let dict = snapshot.value as? [String: String] {
-                //            print("dict = \(dict)")
-                for item in dict {
-                    self?.myPosts.append(Post(time: TimeInterval(Int(item.key)!) , text: item.value))
-                }
-                
-                self?.myPosts.sort(by: { (m1, m2) -> Bool in
-                    return m1.time < m2.time
-                })
-                
-                //            print("myPosts = \(self?.myPosts)")
-                self?.chatTableView.reloadData()
-                
-                if let numberRows = self?.myPosts.count {
-                    let scrollRow = numberRows == 0 ? 0 : numberRows - 1
-                    self?.chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
-                }
+        FireBaseManager.shared.onChatObserve(forUser: myFrend) { [weak self] (posts) in
+            self?.myPosts = posts
+            self?.myPosts.sort(by: { (m1, m2) -> Bool in
+                return m1.time < m2.time
+            })
+            self?.chatTableView.reloadData()
+            if let numberRows = self?.myPosts.count {
+                let scrollRow = numberRows == 0 ? 0 : numberRows - 1
+                self?.chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
             }
             self?.removeLoadingView()
         }
     }
-    
+        
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
@@ -127,7 +118,7 @@ class ChatViewController: UIViewController {
         for item in myPosts {
             dict[Int(item.time).description] = item.text
         }
-        toMyFrendsPostsRef.setValue(dict)
+        FireBaseManager.shared.setValue(dict: dict, forUser: myFrend)
     }
     
     private func addChatTableView() {
