@@ -9,7 +9,7 @@
 import Foundation
 import Firebase
 
-class FireBaseManager {
+class FireBaseManager: StoredProtocol {
     
     static let shared = FireBaseManager()
     private init() {}

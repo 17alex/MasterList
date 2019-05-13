@@ -15,10 +15,24 @@ class FrendsViewController: UIViewController {
     
     private var frends: [People] = []
     private var currentPeople: People?
+    private let storedManager: StoredProtocol
+    private let addOrRemoveFrends: () -> Void
+    private let openFrendChat: (People) -> Void
+    
+    init(_ storedManager: StoredProtocol, _ addOrRemoveFrends: @escaping () -> Void, _ openFrendChat: @escaping (People) -> Void) {
+        self.storedManager = storedManager
+        self.addOrRemoveFrends = addOrRemoveFrends
+        self.openFrendChat = openFrendChat
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     deinit {
         print("FrendsViewController -> deinit")
-        FireBaseManager.shared.removeFrendsObserver()
+        storedManager.removeFrendsObserver()
     }
     
     override func viewDidLoad() {
@@ -32,7 +46,7 @@ class FrendsViewController: UIViewController {
         frendsTableView.dataSource = self
         frendsTableView.delegate = self
 
-        guard let currPeople = FireBaseManager.shared.currentMyUser else {
+        guard let currPeople = storedManager.currentMyUser else {
             navigationItem.title = "error"
             print("FrendsViewController not user")
             return
@@ -46,7 +60,7 @@ class FrendsViewController: UIViewController {
         print("FrendsViewController -> viewDidAppear")
 
         showLoadingView()
-        FireBaseManager.shared.createFrendsObserver { [weak self] (myPeoples) in
+        storedManager.createFrendsObserver { [weak self] (myPeoples) in
             self?.frends = myPeoples
             self?.frends.sort(by: { (p1, p2) -> Bool in
                 return p1.name < p2.name
@@ -62,7 +76,7 @@ class FrendsViewController: UIViewController {
     }
     
     private func configNavController() {
-        let rightBarButtonItem = UIBarButtonItem(title: "Select", style: .done, target: self, action: #selector(addMyUsersButton))
+        let rightBarButtonItem = UIBarButtonItem(title: "Select", style: .done, target: self, action: #selector(addRemoveFrends))
         let leftBarButtonItem = UIBarButtonItem(title: "LogOut", style: .done, target: self, action: #selector(signOutButton))
         navigationItem.rightBarButtonItem = rightBarButtonItem
         navigationItem.leftBarButtonItem = leftBarButtonItem
@@ -70,15 +84,14 @@ class FrendsViewController: UIViewController {
     
     @objc
     private func signOutButton() {
-        FireBaseManager.shared.userSignOut {
+        storedManager.userSignOut {
             navigationController?.popViewController(animated: true)
         }
     }
     
     @objc
-    private func addMyUsersButton() {
-        let allUsersVC = AllUsersViewController()
-        navigationController?.pushViewController(allUsersVC, animated: true)
+    private func addRemoveFrends() {
+        addOrRemoveFrends()
     }
     
     private func addUsersTableView() {
@@ -124,6 +137,6 @@ extension FrendsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let frend = frends[indexPath.row]
-        navigationController?.pushViewController(ChatViewController(myFrend: frend), animated: true)
+        openFrendChat(frend)
     }
 }

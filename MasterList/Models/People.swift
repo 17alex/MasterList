@@ -8,6 +8,7 @@
 
 import Foundation
 import Firebase
+//TODO: - fix firebase
 
 struct People {
     var name: String = ""

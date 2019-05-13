@@ -18,14 +18,20 @@ class ChatViewController: UIViewController {
     private var myFrend: People!
     private var currentMyUser: People!
     private var myPosts: [Post] = []
+    private let storedManager: StoredProtocol
     
-    convenience init(myFrend: People) {
-        self.init()
+    init(myFrend: People, _ storedManager: StoredProtocol) {
         self.myFrend = myFrend
+        self.storedManager = storedManager
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     deinit {
-        FireBaseManager.shared.removeChatObserver(forUser: myFrend)
+        storedManager.removeChatObserver(forUser: myFrend)
     }
     
     override func viewDidLoad() {
@@ -33,7 +39,7 @@ class ChatViewController: UIViewController {
         
         view.backgroundColor = .white
         
-        guard let currMyUser = FireBaseManager.shared.currentMyUser else {
+        guard let currMyUser = storedManager.currentMyUser else {
             navigationItem.title = "error"
             print("MyUsersViewController not user")
             return
@@ -59,7 +65,7 @@ class ChatViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardShow(notification:)), name: UIApplication.keyboardDidShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardHide), name: UIApplication.keyboardDidHideNotification, object: nil)
         
-        FireBaseManager.shared.createChatObserver(forUser: myFrend) { [weak self] (posts) in
+        storedManager.createChatObserver(forUser: myFrend) { [weak self] (posts) in
             self?.myPosts = posts
             self?.myPosts.sort(by: { (m1, m2) -> Bool in
                 return m1.time < m2.time
@@ -124,7 +130,7 @@ class ChatViewController: UIViewController {
         for item in myPosts {
             dict[Int(item.time).description] = item.text
         }
-        FireBaseManager.shared.set(posts: dict, forUser: myFrend)
+        storedManager.set(posts: dict, forUser: myFrend)
     }
     
     private func addChatTableView() {

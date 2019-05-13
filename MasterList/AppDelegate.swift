@@ -20,12 +20,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.makeKeyAndVisible()
-
-        let controller = LoginViewController()
-        let navConroller = UINavigationController(rootViewController: controller)
-        window?.rootViewController = navConroller
-        navConroller.navigationBar.tintColor = #colorLiteral(red: 0, green: 0.5898008943, blue: 1, alpha: 1)
-
+        let coordinator = Coordinator(window: window)
+        coordinator.start()
         return true
     }
 

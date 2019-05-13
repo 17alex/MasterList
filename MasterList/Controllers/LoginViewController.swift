@@ -18,6 +18,20 @@ class LoginViewController: UIViewController {
     private var errorLabel: UILabel!
     private var activityIndicatorView: UIActivityIndicatorView!
     private var lineView: UIView!
+    private let storedManager: StoredProtocol
+    private let coordinator: Coordinator
+    private let logedInAction: () -> Void
+    
+    init(_ storedManager: StoredProtocol, coordinator: Coordinator, _ logedInAction: @escaping () -> Void) {
+        self.storedManager = storedManager
+        self.coordinator = coordinator
+        self.logedInAction = logedInAction
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,11 +62,11 @@ class LoginViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(true)
         
-        if FireBaseManager.shared.currentMyUser != nil {
-            print("user exist")
+        if storedManager.currentMyUser != nil {
+            print("LoginViewController -> user exist")
             goToFrendsViewController()
         } else {
-            print("user not logined")
+            print("LoginViewController -> user not logined")
             loginTextField.becomeFirstResponder()
         }
     }
@@ -172,9 +186,8 @@ class LoginViewController: UIViewController {
     }
     
     private func goToFrendsViewController() {
-        let viewController = FrendsViewController()
-        print("list")
-        navigationController?.pushViewController(viewController, animated: true)
+        logedInAction()
+        print("goToFrendsViewController")
     }
     
     private func presentAlertForEnterName(complition: @escaping (_ name: String) -> Void) {
@@ -205,7 +218,7 @@ class LoginViewController: UIViewController {
         
         activityIndicatorView.startAnimating()
         
-        FireBaseManager.shared.userSignIn(withEmail: login, password: pass) { [weak self] (fbError) in
+        storedManager.userSignIn(withEmail: login, password: pass) { [weak self] (fbError) in
             switch fbError {
             case .error(let errText):
                 self?.showWarningLabel(withText: errText)
@@ -226,13 +239,13 @@ class LoginViewController: UIViewController {
         
         activityIndicatorView.startAnimating()
         
-        FireBaseManager.shared.userSignUp(withEmail: login, password: pass) { [weak self] (fbError) in
+        storedManager.userSignUp(withEmail: login, password: pass) { [weak self] (fbError) in
             switch fbError {
             case .error(let errText):
                 self?.showWarningLabel(withText: errText)
             case .success:
                 self?.presentAlertForEnterName(complition: { [weak self] (name) in
-                    FireBaseManager.shared.save(userName: name)
+                    self?.storedManager.save(userName: name)
                     self?.goToFrendsViewController()
                 })
             }

@@ -7,14 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		843AE5B022895F2700201E85 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843AE5AF22895F2700201E85 /* Coordinator.swift */; };
+		843AE5B622896B0300201E85 /* Protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843AE5B522896B0300201E85 /* Protocol.swift */; };
 		84774BF4228147E300A1ED74 /* FireBaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84774BF3228147E300A1ED74 /* FireBaseManager.swift */; };
 		84774BF6228187C500A1ED74 /* AuchResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84774BF5228187C500A1ED74 /* AuchResult.swift */; };
 		8484AB5222802A2E00084518 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8484AB5122802A2E00084518 /* LoadingView.swift */; };
-		849298D7221EA28C002BEFBF /* myUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849298D6221EA28C002BEFBF /* myUser.swift */; };
+		849298D7221EA28C002BEFBF /* People.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849298D6221EA28C002BEFBF /* People.swift */; };
 		84A425812276D83200D42873 /* ChatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A425802276D83200D42873 /* ChatViewController.swift */; };
 		84A425852277246A00D42873 /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A425842277246A00D42873 /* Post.swift */; };
 		84C692A8227842CF0074D3E7 /* ChatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C692A7227842CF0074D3E7 /* ChatTableViewCell.swift */; };
-		84F34EFA226473D9004F03F9 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F34EF9226473D9004F03F9 /* ProfileViewController.swift */; };
 		84F47C912265D2BE005CC276 /* FrendsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F47C902265D2BE005CC276 /* FrendsViewController.swift */; };
 		84F47C9322660457005CC276 /* AllUsersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F47C9222660457005CC276 /* AllUsersViewController.swift */; };
 		8D0EEF85221C764300E72042 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D0EEF84221C764300E72042 /* AppDelegate.swift */; };
@@ -27,14 +28,15 @@
 
 /* Begin PBXFileReference section */
 		4E05B31DE725A2AD5755ADB7 /* Pods_MasterList.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MasterList.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		843AE5AF22895F2700201E85 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
+		843AE5B522896B0300201E85 /* Protocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocol.swift; sourceTree = "<group>"; };
 		84774BF3228147E300A1ED74 /* FireBaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireBaseManager.swift; sourceTree = "<group>"; };
 		84774BF5228187C500A1ED74 /* AuchResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuchResult.swift; sourceTree = "<group>"; };
 		8484AB5122802A2E00084518 /* LoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingView.swift; sourceTree = "<group>"; };
-		849298D6221EA28C002BEFBF /* myUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = myUser.swift; sourceTree = "<group>"; };
+		849298D6221EA28C002BEFBF /* People.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = People.swift; sourceTree = "<group>"; };
 		84A425802276D83200D42873 /* ChatViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatViewController.swift; sourceTree = "<group>"; };
 		84A425842277246A00D42873 /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
 		84C692A7227842CF0074D3E7 /* ChatTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatTableViewCell.swift; sourceTree = "<group>"; };
-		84F34EF9226473D9004F03F9 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		84F47C902265D2BE005CC276 /* FrendsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrendsViewController.swift; sourceTree = "<group>"; };
 		84F47C9222660457005CC276 /* AllUsersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllUsersViewController.swift; sourceTree = "<group>"; };
 		8D0EEF81221C764300E72042 /* MasterList.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MasterList.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -69,10 +71,50 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		843AE5B122896A8300201E85 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				8484AB5122802A2E00084518 /* LoadingView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		843AE5B222896AA400201E85 /* CostomCell */ = {
+			isa = PBXGroup;
+			children = (
+				84C692A7227842CF0074D3E7 /* ChatTableViewCell.swift */,
+			);
+			path = CostomCell;
+			sourceTree = "<group>";
+		};
+		843AE5B322896ABF00201E85 /* Manager */ = {
+			isa = PBXGroup;
+			children = (
+				84774BF3228147E300A1ED74 /* FireBaseManager.swift */,
+			);
+			path = Manager;
+			sourceTree = "<group>";
+		};
+		843AE5B422896AD800201E85 /* Protocol */ = {
+			isa = PBXGroup;
+			children = (
+				843AE5B522896B0300201E85 /* Protocol.swift */,
+			);
+			path = Protocol;
+			sourceTree = "<group>";
+		};
+		843AE5B722896B1B00201E85 /* Coordinator */ = {
+			isa = PBXGroup;
+			children = (
+				843AE5AF22895F2700201E85 /* Coordinator.swift */,
+			);
+			path = Coordinator;
+			sourceTree = "<group>";
+		};
 		849298D8221EA294002BEFBF /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				849298D6221EA28C002BEFBF /* myUser.swift */,
+				849298D6221EA28C002BEFBF /* People.swift */,
 				84A425842277246A00D42873 /* Post.swift */,
 				84774BF5228187C500A1ED74 /* AuchResult.swift */,
 			);
@@ -85,11 +127,7 @@
 				8D6BFCED221C78F400A009F4 /* LoginViewController.swift */,
 				84F47C902265D2BE005CC276 /* FrendsViewController.swift */,
 				84A425802276D83200D42873 /* ChatViewController.swift */,
-				84C692A7227842CF0074D3E7 /* ChatTableViewCell.swift */,
 				84F47C9222660457005CC276 /* AllUsersViewController.swift */,
-				84F34EF9226473D9004F03F9 /* ProfileViewController.swift */,
-				8484AB5122802A2E00084518 /* LoadingView.swift */,
-				84774BF3228147E300A1ED74 /* FireBaseManager.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -124,8 +162,13 @@
 			isa = PBXGroup;
 			children = (
 				8D0EEF84221C764300E72042 /* AppDelegate.swift */,
+				843AE5B722896B1B00201E85 /* Coordinator */,
+				843AE5B422896AD800201E85 /* Protocol */,
 				849298D8221EA294002BEFBF /* Models */,
 				849298D9221EA2BB002BEFBF /* Controllers */,
+				843AE5B322896ABF00201E85 /* Manager */,
+				843AE5B122896A8300201E85 /* View */,
+				843AE5B222896AA400201E85 /* CostomCell */,
 				8D0EEF8B221C764500E72042 /* Assets.xcassets */,
 				8D0EEF8D221C764500E72042 /* LaunchScreen.storyboard */,
 				8D0EEF90221C764500E72042 /* Info.plist */,
@@ -253,12 +296,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				84F34EFA226473D9004F03F9 /* ProfileViewController.swift in Sources */,
 				84F47C9322660457005CC276 /* AllUsersViewController.swift in Sources */,
+				843AE5B622896B0300201E85 /* Protocol.swift in Sources */,
+				843AE5B022895F2700201E85 /* Coordinator.swift in Sources */,
 				8D6BFCEE221C78F400A009F4 /* LoginViewController.swift in Sources */,
 				84F47C912265D2BE005CC276 /* FrendsViewController.swift in Sources */,
 				84C692A8227842CF0074D3E7 /* ChatTableViewCell.swift in Sources */,
-				849298D7221EA28C002BEFBF /* myUser.swift in Sources */,
+				849298D7221EA28C002BEFBF /* People.swift in Sources */,
 				84A425812276D83200D42873 /* ChatViewController.swift in Sources */,
 				8D0EEF85221C764300E72042 /* AppDelegate.swift in Sources */,
 				84774BF4228147E300A1ED74 /* FireBaseManager.swift in Sources */,

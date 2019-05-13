@@ -12,15 +12,24 @@ class AllUsersViewController: UIViewController {
 
     private var allUsersTableView: UITableView!
     private var loadingView: LoadingView!
-    
     private var currentMyUser: People!
     private var allUsers: [People] = []
     private var myUsers: [String: String] = [:]
+    private let storedManager: StoredProtocol
+    
+    init(storedManager: StoredProtocol) {
+        self.storedManager = storedManager
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     deinit {
         print("AllUsersViewController -> deinit")
-        FireBaseManager.shared.removeAllUsersObserver()
-        FireBaseManager.shared.removeFrendsObserver()
+        storedManager.removeAllUsersObserver()
+        storedManager.removeFrendsObserver()
     }
     
     override func viewDidLoad() {
@@ -33,7 +42,7 @@ class AllUsersViewController: UIViewController {
         allUsersTableView.dataSource = self
         allUsersTableView.delegate = self
         
-        guard let currMyUser = FireBaseManager.shared.currentMyUser else {
+        guard let currMyUser = storedManager.currentMyUser else {
             navigationItem.title = "error"
             print("MyUsersViewController not user")
             return
@@ -48,7 +57,7 @@ class AllUsersViewController: UIViewController {
         print("AllUsersViewController -> viewWillAppear")
         
         showLoadingView()
-        FireBaseManager.shared.createAllUsersObserver { [weak self] (allUsers) in
+        storedManager.createAllUsersObserver { [weak self] (allUsers) in
             self?.allUsers = allUsers
             self?.allUsers.sort(by: { (u1, u2) -> Bool in
                 return u1.name < u2.name
@@ -57,7 +66,7 @@ class AllUsersViewController: UIViewController {
             self?.allUsersTableView.reloadData()
         }
         
-        FireBaseManager.shared.createFrendsObserverDic { [weak self] (myFrends) in
+        storedManager.createFrendsObserverDic { [weak self] (myFrends) in
             self?.myUsers = myFrends
             self?.allUsersTableView.reloadData()
         }
@@ -117,9 +126,9 @@ extension AllUsersViewController: UITableViewDelegate {
         let selectMyUser = allUsers[indexPath.row]
         
         if cell?.accessoryType == .checkmark {
-            FireBaseManager.shared.remove(frend: selectMyUser)
+            storedManager.remove(frend: selectMyUser)
         } else {
-            FireBaseManager.shared.add(frend: selectMyUser)
+            storedManager.add(frend: selectMyUser)
         }
         
         tableView.deselectRow(at: indexPath, animated: true)
