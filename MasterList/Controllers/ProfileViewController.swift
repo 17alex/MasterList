@@ -17,7 +17,7 @@ class ProfileViewController: UIViewController {
     
     private var profileTableView: UITableView!
     private var userRef: DatabaseReference!
-    private var myUser: MyUser!
+    private var myUser: People!
     private var tableData: [TableLineType] = [.name]
     
     override func viewDidLoad() {
@@ -37,7 +37,7 @@ class ProfileViewController: UIViewController {
         profileTableView.delegate = self
         
         guard let currentUser = Auth.auth().currentUser else { return }
-        myUser = MyUser(user: currentUser)
+        myUser = People(user: currentUser)
         userRef = Database.database().reference(withPath: "users").child(myUser.uid)
         myUser.name = userRef.value(forKey: "name") as! String
     }

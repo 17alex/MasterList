@@ -15,11 +15,11 @@ class ChatViewController: UIViewController {
     private var chatSendButton: UIButton!
     private var loadingView: LoadingView!
     
-    private var myFrend: MyUser!
-    private var currentMyUser: MyUser!
+    private var myFrend: People!
+    private var currentMyUser: People!
     private var myPosts: [Post] = []
     
-    convenience init(myFrend: MyUser) {
+    convenience init(myFrend: People) {
         self.init()
         self.myFrend = myFrend
     }

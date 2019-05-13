@@ -50,9 +50,9 @@ class LoginViewController: UIViewController {
         
         if FireBaseManager.shared.currentMyUser != nil {
             print("user exist")
-            goToMyUsersViewController()
+            goToFrendsViewController()
         } else {
-            print("user nil")
+            print("user not logined")
             loginTextField.becomeFirstResponder()
         }
     }
@@ -171,28 +171,27 @@ class LoginViewController: UIViewController {
         lineView.heightAnchor.constraint(equalToConstant: 1).isActive = true
     }
     
-    private func goToMyUsersViewController() {
-        let viewController = MyUsersViewController()
+    private func goToFrendsViewController() {
+        let viewController = FrendsViewController()
         print("list")
         navigationController?.pushViewController(viewController, animated: true)
     }
     
     private func presentAlertForEnterName(complition: @escaping (_ name: String) -> Void) {
         
-        let alertController = UIAlertController(title: "Enter", message: "name", preferredStyle: .alert)
+        let alertController = UIAlertController(title: "Enter", message: "your name", preferredStyle: .alert)
         alertController.addTextField(configurationHandler: nil)
         let saveAction = UIAlertAction(title: "Ok", style: .default, handler: { (_) in
-            if let nameText = alertController.textFields?.first?.text, nameText != "" {
-                complition(nameText)
+            if let nameText = alertController.textFields?.first?.text {
+                if nameText.isEmpty {
+                    complition("noName")
+                } else {
+                    complition(nameText)
+                }
             }
         })
         
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: { (_) in
-            complition("")
-        })
-        
         alertController.addAction(saveAction)
-        alertController.addAction(cancelAction)
         present(alertController, animated: true, completion: nil)
     }
     
@@ -200,7 +199,7 @@ class LoginViewController: UIViewController {
     private func signInButtonPress() {
         
         guard let login = loginTextField.text, let pass = passwordtextField.text, login != "", pass != "" else {
-            showWarningLabel(withText: "fild(s) is empy")
+            showWarningLabel(withText: "fild(s) is empty")
             return
         }
         
@@ -211,7 +210,7 @@ class LoginViewController: UIViewController {
             case .error(let errText):
                 self?.showWarningLabel(withText: errText)
             case .success:
-                self?.goToMyUsersViewController()
+                self?.goToFrendsViewController()
             }
             self?.activityIndicatorView.stopAnimating()
         }
@@ -221,7 +220,7 @@ class LoginViewController: UIViewController {
     private func signUpButtonPress() {
         print("===== SIGN UP ========")
         guard let login = loginTextField.text, let pass = passwordtextField.text, login != "", pass != "" else {
-            showWarningLabel(withText: "fild(s) is empy")
+            showWarningLabel(withText: "fild(s) is empty")
             return
         }
         
@@ -234,7 +233,7 @@ class LoginViewController: UIViewController {
             case .success:
                 self?.presentAlertForEnterName(complition: { [weak self] (name) in
                     FireBaseManager.shared.save(userName: name)
-                    self?.goToMyUsersViewController()
+                    self?.goToFrendsViewController()
                 })
             }
             self?.activityIndicatorView.stopAnimating()

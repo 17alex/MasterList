@@ -16,21 +16,21 @@ class FireBaseManager {
     
     private let ref: DatabaseReference = Database.database().reference()
    
-    var currentMyUser: MyUser? {
+    var currentMyUser: People? {
         guard let currentUser = Auth.auth().currentUser else { return nil }
-        return MyUser(user: currentUser)
+        return People(user: currentUser)
     }
     
-    func createAllUsersObserver(completion: @escaping ([MyUser]) -> Void) {
+    func createAllUsersObserver(completion: @escaping ([People]) -> Void) {
         if let currUser = currentMyUser {
             ref.child("users/list").observe(.value) { (snapshot) in
-                var allUsers: [MyUser] = []
+                var allUsers: [People] = []
                 for item in snapshot.children {
                     let snap = item as! DataSnapshot
                     let snapValue = snap.value as! [String: AnyObject]
                     let uid = snapValue["uid"] as! String
                     let name = snapValue["name"] as! String
-                    let myUser = MyUser(uid: uid, name: name)
+                    let myUser = People(uid: uid, name: name)
                     if myUser.uid != currUser.uid {
                         allUsers.append(myUser)
                     }
@@ -44,16 +44,16 @@ class FireBaseManager {
             ref.child("users/list").removeAllObservers()
     }
     
-    func createFrendsObserver(completion: @escaping ([MyUser]) -> Void) {
+    func createFrendsObserver(completion: @escaping ([People]) -> Void) {
         if let currUser = currentMyUser {
             ref.child("users/list/\(currUser.uid)/frends").observe(.value) { (snapshot) in
-                var myUsers: [MyUser] = []
+                var myUsers: [People] = []
                 let dict = snapshot.value as? [String: AnyObject] ?? [:]
                 for item in dict {
                     let dic = item.value as? [String: AnyObject] ?? [:]
                     let id = dic["uid"] as! String
                     let name = dic["name"] as! String
-                    let myUser = MyUser(uid: id, name: name)
+                    let myUser = People(uid: id, name: name)
                     myUsers.append(myUser)
                 }
                 completion(myUsers)
@@ -61,7 +61,7 @@ class FireBaseManager {
         }
     }
     
-    func createFrendsObserverD(completion: @escaping ([String: String]) -> Void) {
+    func createFrendsObserverDic(completion: @escaping ([String: String]) -> Void) {
         if let currUser = currentMyUser {
             ref.child("users/list/\(currUser.uid)/frends").observe(.value) { (snapshot) in
                 var myUsers: [String: String] = [:]
@@ -77,13 +77,13 @@ class FireBaseManager {
         }
     }
     
-    func removeFrensObserver() {
+    func removeFrendsObserver() {
         if let currUser = currentMyUser {
             ref.child("users/list/\(currUser.uid)/frends").removeAllObservers()
         }
     }
     
-    func createChatObserver(forUser: MyUser, complete: @escaping ([Post]) -> Void) {
+    func createChatObserver(forUser: People, complete: @escaping ([Post]) -> Void) {
         if let currUser = currentMyUser {
             ref.child("users/list/\(currUser.uid)/frends/\(forUser.uid)/posts").observe(.value) { (snapshot) in
                 var myPosts: [Post] = []
@@ -97,25 +97,25 @@ class FireBaseManager {
         }
     }
     
-    func removeChatObserver(forUser: MyUser) {
+    func removeChatObserver(forUser: People) {
         if let currUser = currentMyUser {
             ref.child("users/list/\(currUser.uid)/frends/\(forUser.uid)/posts").removeAllObservers()
         }
     }
     
-    func set(posts: [String: String], forUser: MyUser) {
+    func set(posts: [String: String], forUser: People) {
         if let currUser = currentMyUser {
             ref.child("users/list/\(currUser.uid)/frends/\(forUser.uid)/posts").setValue(posts)
         }
     }
     
-    func add(frend: MyUser) {
+    func add(frend: People) {
         if let currUser = currentMyUser {
             ref.child("users/list/\(currUser.uid)/frends/\(frend.uid)").setValue(["name": frend.name, "uid": frend.uid])
         }
     }
     
-    func remove(frend: MyUser) {
+    func remove(frend: People) {
         if let currUser = currentMyUser {
             ref.child("users/list/\(currUser.uid)/frends/\(frend.uid)").removeValue()
         }

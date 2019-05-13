@@ -8,17 +8,17 @@
 
 import UIKit
 
-class MyUsersViewController: UIViewController {
+class FrendsViewController: UIViewController {
 
-    private var myUsersTableView: UITableView!
+    private var frendsTableView: UITableView!
     private var loadingView: LoadingView!
     
-    private var myUsers: [MyUser] = []
-    private var currentMyUser: MyUser?
+    private var frends: [People] = []
+    private var currentPeople: People?
     
     deinit {
-        print("MyUsersViewController -> deinit")
-        FireBaseManager.shared.removeFrensObserver()
+        print("FrendsViewController -> deinit")
+        FireBaseManager.shared.removeFrendsObserver()
     }
     
     override func viewDidLoad() {
@@ -29,42 +29,40 @@ class MyUsersViewController: UIViewController {
         configNavController()
         addUsersTableView()
         addConstraints()
-        myUsersTableView.dataSource = self
-        myUsersTableView.delegate = self
+        frendsTableView.dataSource = self
+        frendsTableView.delegate = self
 
-        guard let currMyUser = FireBaseManager.shared.currentMyUser else {
+        guard let currPeople = FireBaseManager.shared.currentMyUser else {
             navigationItem.title = "error"
-            print("MyUsersViewController not user")
+            print("FrendsViewController not user")
             return
         }
-        currentMyUser = currMyUser
-        print("MyUsersViewController user exist")
+        currentPeople = currPeople
+        print("FrendsViewController user exist")
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        print("MyUsersViewController -> viewDidAppear")
+        print("FrendsViewController -> viewDidAppear")
 
         showLoadingView()
-        FireBaseManager.shared.createFrendsObserver { [weak self] (myUsers) in
-            self?.myUsers = myUsers
-            self?.myUsers.sort(by: { (u1, u2) -> Bool in
-                return u1.name < u2.name
+        FireBaseManager.shared.createFrendsObserver { [weak self] (myPeoples) in
+            self?.frends = myPeoples
+            self?.frends.sort(by: { (p1, p2) -> Bool in
+                return p1.name < p2.name
             })
             self?.removeLoadingView()
-            self?.myUsersTableView.reloadData()
+            self?.frendsTableView.reloadData()
         }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(true)
-        print("MyUsersViewController -> viewDidDisappear")
+        print("FrendsViewController -> viewDidDisappear")
     }
     
     private func configNavController() {
-//        let rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addMyUsersButton))
         let rightBarButtonItem = UIBarButtonItem(title: "Select", style: .done, target: self, action: #selector(addMyUsersButton))
-//        let leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(signOutButton))
         let leftBarButtonItem = UIBarButtonItem(title: "LogOut", style: .done, target: self, action: #selector(signOutButton))
         navigationItem.rightBarButtonItem = rightBarButtonItem
         navigationItem.leftBarButtonItem = leftBarButtonItem
@@ -72,7 +70,6 @@ class MyUsersViewController: UIViewController {
     
     @objc
     private func signOutButton() {
-        
         FireBaseManager.shared.userSignOut {
             navigationController?.popViewController(animated: true)
         }
@@ -80,23 +77,22 @@ class MyUsersViewController: UIViewController {
     
     @objc
     private func addMyUsersButton() {
-        
         let allUsersVC = AllUsersViewController()
         navigationController?.pushViewController(allUsersVC, animated: true)
     }
     
     private func addUsersTableView() {
-        myUsersTableView = UITableView()
-        myUsersTableView.translatesAutoresizingMaskIntoConstraints = false
-        myUsersTableView.register(UITableViewCell.self, forCellReuseIdentifier: "usersList")
-        view.addSubview(myUsersTableView)
+        frendsTableView = UITableView()
+        frendsTableView.translatesAutoresizingMaskIntoConstraints = false
+        frendsTableView.register(UITableViewCell.self, forCellReuseIdentifier: "proplesList")
+        view.addSubview(frendsTableView)
     }
     
     private func addConstraints() {
-        myUsersTableView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
-        myUsersTableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
-        myUsersTableView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        myUsersTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+        frendsTableView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        frendsTableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
+        frendsTableView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        frendsTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
     }
     
     private func showLoadingView() {
@@ -110,24 +106,24 @@ class MyUsersViewController: UIViewController {
     }
 }
 
-extension MyUsersViewController: UITableViewDataSource {
+extension FrendsViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return myUsers.count
+        return frends.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "usersList", for: indexPath)
-        cell.textLabel?.text = myUsers[indexPath.row].name
+        let cell = tableView.dequeueReusableCell(withIdentifier: "proplesList", for: indexPath)
+        cell.textLabel?.text = frends[indexPath.row].name
         return cell
     }
 }
 
-extension MyUsersViewController: UITableViewDelegate {
+extension FrendsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let frend = myUsers[indexPath.row]
+        let frend = frends[indexPath.row]
         navigationController?.pushViewController(ChatViewController(myFrend: frend), animated: true)
     }
 }

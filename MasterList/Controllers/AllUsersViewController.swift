@@ -13,14 +13,14 @@ class AllUsersViewController: UIViewController {
     private var allUsersTableView: UITableView!
     private var loadingView: LoadingView!
     
-    private var currentMyUser: MyUser!
-    private var allUsers: [MyUser] = []
+    private var currentMyUser: People!
+    private var allUsers: [People] = []
     private var myUsers: [String: String] = [:]
     
     deinit {
         print("AllUsersViewController -> deinit")
         FireBaseManager.shared.removeAllUsersObserver()
-        FireBaseManager.shared.removeFrensObserver()
+        FireBaseManager.shared.removeFrendsObserver()
     }
     
     override func viewDidLoad() {
@@ -57,7 +57,7 @@ class AllUsersViewController: UIViewController {
             self?.allUsersTableView.reloadData()
         }
         
-        FireBaseManager.shared.createFrendsObserverD { [weak self] (myFrends) in
+        FireBaseManager.shared.createFrendsObserverDic { [weak self] (myFrends) in
             self?.myUsers = myFrends
             self?.allUsersTableView.reloadData()
         }
