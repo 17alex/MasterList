@@ -18,11 +18,13 @@ class FrendsViewController: UIViewController {
     private let storedManager: StoredProtocol
     private let addOrRemoveFrends: () -> Void
     private let openFrendChat: (People) -> Void
+    private let signOut: () -> Void
     
-    init(_ storedManager: StoredProtocol, _ addOrRemoveFrends: @escaping () -> Void, _ openFrendChat: @escaping (People) -> Void) {
+    init(_ storedManager: StoredProtocol, _ addOrRemoveFrends: @escaping () -> Void, _ openFrendChat: @escaping (People) -> Void, _ signOut: @escaping () -> Void) {
         self.storedManager = storedManager
         self.addOrRemoveFrends = addOrRemoveFrends
         self.openFrendChat = openFrendChat
+        self.signOut = signOut
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -39,7 +41,7 @@ class FrendsViewController: UIViewController {
         super.viewDidLoad()
 
         navigationController?.setNavigationBarHidden(false, animated: true)
-        title = "myFrends"
+        title = "Chats"
         configNavController()
         addUsersTableView()
         addConstraints()
@@ -76,7 +78,7 @@ class FrendsViewController: UIViewController {
     }
     
     private func configNavController() {
-        let rightBarButtonItem = UIBarButtonItem(title: "Select", style: .done, target: self, action: #selector(addRemoveFrends))
+        let rightBarButtonItem = UIBarButtonItem(title: "NewChat", style: .done, target: self, action: #selector(addRemoveFrends))
         let leftBarButtonItem = UIBarButtonItem(title: "LogOut", style: .done, target: self, action: #selector(signOutButton))
         navigationItem.rightBarButtonItem = rightBarButtonItem
         navigationItem.leftBarButtonItem = leftBarButtonItem
@@ -84,8 +86,8 @@ class FrendsViewController: UIViewController {
     
     @objc
     private func signOutButton() {
-        storedManager.userSignOut {
-            navigationController?.popViewController(animated: true)
+        storedManager.userSignOut { [weak self] in
+            self?.signOut()
         }
     }
     

@@ -83,16 +83,30 @@ class FireBaseManager: StoredProtocol {
         }
     }
     
-    func createChatObserver(forUser: People, complete: @escaping ([Post]) -> Void) {
+    func createChatObserverFor(people: People, complete: @escaping ([Post]) -> Void) {
         if let currUser = currentMyUser {
-            ref.child("users/list/\(currUser.uid)/frends/\(forUser.uid)/posts").observe(.value) { (snapshot) in
-                var myPosts: [Post] = []
+            ref.child("users/list/\(currUser.uid)/frends/\(people.uid)/posts").observe(.value) { (snapshot) in
+                var posts: [Post] = []
                 if let dict = snapshot.value as? [String: String] {
                     for item in dict {
-                        myPosts.append(Post(time: TimeInterval(Int(item.key)!) , text: item.value))
+                        posts.append(Post(time: TimeInterval(Int(item.key)!) , text: item.value, people: currUser))
                     }
                 }
-                complete(myPosts)
+                complete(posts)
+            }
+        }
+    }
+    
+    func createChatObserverFrom(people: People, complete: @escaping ([Post]) -> Void) {
+        if let currUser = currentMyUser {
+            ref.child("users/list/\(people.uid)/frends/\(currUser.uid)/posts").observe(.value) { (snapshot) in
+                var posts: [Post] = []
+                if let dict = snapshot.value as? [String: String] {
+                    for item in dict {
+                        posts.append(Post(time: TimeInterval(Int(item.key)!) , text: item.value, people: people))
+                    }
+                }
+                complete(posts)
             }
         }
     }

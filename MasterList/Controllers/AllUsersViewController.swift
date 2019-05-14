@@ -16,9 +16,11 @@ class AllUsersViewController: UIViewController {
     private var allUsers: [People] = []
     private var myUsers: [String: String] = [:]
     private let storedManager: StoredProtocol
+    private let openChat: (People) -> Void
     
-    init(storedManager: StoredProtocol) {
+    init(_ storedManager: StoredProtocol, _ openChat: @escaping (People) -> Void) {
         self.storedManager = storedManager
+        self.openChat = openChat
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -35,7 +37,7 @@ class AllUsersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        title = "addFrends"
+        title = "addChat"
         addUsersTableView()
         addConstraints()
         
@@ -125,13 +127,11 @@ extension AllUsersViewController: UITableViewDelegate {
         let cell = tableView.cellForRow(at: indexPath)
         let selectMyUser = allUsers[indexPath.row]
         
-        if cell?.accessoryType == .checkmark {
-            storedManager.remove(frend: selectMyUser)
-        } else {
+        if cell?.accessoryType != .checkmark {
             storedManager.add(frend: selectMyUser)
         }
         
-        tableView.deselectRow(at: indexPath, animated: true)
+        openChat(selectMyUser)
     }
 }
 

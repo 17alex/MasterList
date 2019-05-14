@@ -17,7 +17,9 @@ class ChatViewController: UIViewController {
     
     private var myFrend: People!
     private var currentMyUser: People!
+    private var allPosts: [Post] = []
     private var myPosts: [Post] = []
+    private var frendPosts: [Post] = []
     private let storedManager: StoredProtocol
     
     init(myFrend: People, _ storedManager: StoredProtocol) {
@@ -60,24 +62,37 @@ class ChatViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        showLoadingView()
-        
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardShow(notification:)), name: UIApplication.keyboardDidShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardHide), name: UIApplication.keyboardDidHideNotification, object: nil)
         
-        storedManager.createChatObserver(forUser: myFrend) { [weak self] (posts) in
+        showLoadingView()
+        var taskCount = 2
+        storedManager.createChatObserverFor(people: myFrend) { [weak self] (posts) in
             self?.myPosts = posts
-            self?.myPosts.sort(by: { (m1, m2) -> Bool in
+
+            if taskCount > 0 { taskCount -= 1 }
+            if taskCount == 0 { endLoading() }
+        }
+        
+        storedManager.createChatObserverFrom(people: myFrend) { [weak self] (posts) in
+            self?.frendPosts = posts
+
+            if taskCount > 0 { taskCount -= 1 }
+            if taskCount == 0 { endLoading() }
+        }
+        
+        func endLoading() {
+            allPosts = myPosts
+            allPosts.append(contentsOf: frendPosts)
+            removeLoadingView()
+            allPosts.sort(by: { (m1, m2) -> Bool in
                 return m1.time < m2.time
             })
-            self?.chatTableView.reloadData()
-            if let numberRows = self?.myPosts.count {
-                let scrollRow = numberRows == 0 ? 0 : numberRows - 1
-                if scrollRow > 0 {
-                    self?.chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
-                }
+            chatTableView.reloadData()
+            let scrollRow = allPosts.count == 0 ? 0 : allPosts.count - 1
+            if scrollRow > 0 {
+                chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
             }
-            self?.removeLoadingView()
         }
     }
         
@@ -101,7 +116,7 @@ class ChatViewController: UIViewController {
         UIView.animate(withDuration: 0.25, animations: { [weak self] in
             self?.view.frame.size.height -= offset
         }) { [weak self] (_) in
-            if let numberRows = self?.myPosts.count {
+            if let numberRows = self?.allPosts.count {
                 let scrollRow = numberRows == 0 ? 0 : numberRows - 1
                 if scrollRow > 0 {
                     self?.chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
@@ -124,7 +139,7 @@ class ChatViewController: UIViewController {
         
         guard let messageText = chatTextField.text, !messageText.isEmpty else { return }
         let timeInterval = Date().timeIntervalSince1970
-        myPosts.append(Post(time: timeInterval, text: messageText))
+        myPosts.append(Post(time: timeInterval, text: messageText, people: currentMyUser))
         chatTextField.text = ""
         var dict: [String: String] = [:]
         for item in myPosts {
@@ -146,6 +161,8 @@ class ChatViewController: UIViewController {
         chatTextField = UITextField()
         chatTextField.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
         chatTextField.borderStyle = .roundedRect
+//        chatTextField.layer.borderColor = UIColor.darkGray.cgColor
+//        chatTextField.layer.borderWidth = 1
         chatTextField.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(chatTextField)
     }
@@ -157,6 +174,8 @@ class ChatViewController: UIViewController {
         chatSendButton.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
         chatSendButton.addTarget(self, action: #selector(chatSendButtonPress), for: .touchUpInside)
         chatSendButton.layer.cornerRadius = 5
+        chatSendButton.layer.borderColor = UIColor.darkGray.cgColor
+        chatSendButton.layer.borderWidth = 1
         chatSendButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(chatSendButton)
     }
@@ -185,7 +204,7 @@ class ChatViewController: UIViewController {
     }
     
     private func removeLoadingView() {
-        loadingView.removeFromSuperview()
+        if loadingView != nil { loadingView.removeFromSuperview() }
     }
 }
 
@@ -200,13 +219,15 @@ extension ChatViewController: UITextFieldDelegate {
 extension ChatViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return myPosts.count
+        return allPosts.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "chatCell", for: indexPath) as! ChatTableViewCell
-        cell.messText = myPosts[indexPath.row].text
-        cell.messTime = myPosts[indexPath.row].time
+        cell.messText = allPosts[indexPath.row].text
+        cell.messTime = allPosts[indexPath.row].time
+        let messUser = allPosts[indexPath.row].people
+        cell.messTextLabel.textColor = messUser.uid == currentMyUser.uid ? .red : .blue
         return cell
     }
 }

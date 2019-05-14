@@ -11,6 +11,7 @@ import Foundation
 struct Post {
     let time: TimeInterval
     let text: String
+    let people: People
 }
 
 func dateToString(format: String, timeInterval: TimeInterval?) -> String {
