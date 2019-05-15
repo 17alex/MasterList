@@ -57,13 +57,16 @@ class ChatViewController: UIViewController {
         chatTextField.delegate = self
         chatTableView.dataSource = self
         chatTableView.delegate = self
+        
+        chatTableView.estimatedRowHeight = 150
+        chatTableView.rowHeight = UITableView.automaticDimension
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardShow(notification:)), name: UIApplication.keyboardDidShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardHide), name: UIApplication.keyboardDidHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         
         showLoadingView()
         var taskCount = 2
@@ -99,8 +102,8 @@ class ChatViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        NotificationCenter.default.removeObserver(self, name: UIApplication.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.removeObserver(self, name: UIApplication.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     @objc
@@ -227,7 +230,7 @@ extension ChatViewController: UITableViewDataSource {
         cell.messText = allPosts[indexPath.row].text
         cell.messTime = allPosts[indexPath.row].time
         let messUser = allPosts[indexPath.row].people
-        cell.messTextLabel.textColor = messUser.uid == currentMyUser.uid ? .red : .blue
+        cell.messTextColor = messUser.uid == currentMyUser.uid ? .red : .blue
         return cell
     }
 }
@@ -239,7 +242,15 @@ extension ChatViewController: UITableViewDelegate {
         chatTextField.resignFirstResponder()
     }
     
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 44
-    }
+//    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+//        let h = UITableView.automaticDimension
+//        print("cell height = \(h)")
+//        return h
+//    }
+//
+//    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+//        print("estimatedHeightForRowAt")
+//        return 150
+//    }
+    
 }
