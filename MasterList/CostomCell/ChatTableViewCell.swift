@@ -13,7 +13,7 @@ class ChatTableViewCell: UITableViewCell {
     var mainView: UIView!
     var messView: UIView!
     
-    var messTextView: UITextView!
+    var messTextLabel: UILabel!
     var messTimeLabel: UILabel!
     
     var messText: String = ""
@@ -23,8 +23,8 @@ class ChatTableViewCell: UITableViewCell {
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
-        messTextView.text = messText
-        messTextView.textColor = messTextColor
+        messTextLabel.text = messText
+        messTextLabel.textColor = messTextColor
         messTimeLabel.text = dateToString(format: "dd:MM:yy HH:mm:ss", timeInterval: messTime)
     }
 
@@ -32,9 +32,9 @@ class ChatTableViewCell: UITableViewCell {
         super.didMoveToSuperview()
         
         print(#function)
-        backgroundColor = .orange
+        backgroundColor = .white
         addMainView()
-        addMessTextView()
+        addMessTextLabel()
         addMessTimeLabel()
         addConstraints()
     }
@@ -49,16 +49,13 @@ class ChatTableViewCell: UITableViewCell {
         addSubview(mainView)
     }
     
-    private func addMessTextView() {
-        messTextView = UITextView()
-        messTextView.backgroundColor = .clear
-        messTextView.textColor = .black
-        messTextView.isScrollEnabled = false
-        messTextView.isEditable = false
-        messTextView.isSelectable = false
-        messTextView.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-        messTextView.translatesAutoresizingMaskIntoConstraints = false
-        mainView.addSubview(messTextView)
+    private func addMessTextLabel() {
+        messTextLabel = UILabel()
+        messTextLabel.textColor = .black
+        messTextLabel.numberOfLines = 0
+        messTextLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        messTextLabel.translatesAutoresizingMaskIntoConstraints = false
+        mainView.addSubview(messTextLabel)
     }
     
     private func addMessTimeLabel() {
@@ -75,12 +72,12 @@ class ChatTableViewCell: UITableViewCell {
         mainView.rightAnchor.constraint(equalTo: rightAnchor, constant: -8).isActive = true
         mainView.bottomAnchor.constraint(equalTo: messTimeLabel.bottomAnchor, constant: 2).isActive = true
         
-        messTextView.leftAnchor.constraint(equalTo: mainView.leftAnchor, constant: 5).isActive = true
-        messTextView.topAnchor.constraint(equalTo: mainView.topAnchor, constant: 1).isActive = true
-        messTextView.rightAnchor.constraint(equalTo: mainView.rightAnchor, constant: -5).isActive = true
-        messTextView.sizeToFit()
+        messTextLabel.leftAnchor.constraint(equalTo: mainView.leftAnchor, constant: 5).isActive = true
+        messTextLabel.topAnchor.constraint(equalTo: mainView.topAnchor, constant: 5).isActive = true
+        messTextLabel.rightAnchor.constraint(equalTo: mainView.rightAnchor, constant: -5).isActive = true
+        messTextLabel.sizeToFit()
         
         messTimeLabel.leftAnchor.constraint(equalTo: mainView.leftAnchor, constant: 10).isActive = true
-        messTimeLabel.topAnchor.constraint(equalTo: messTextView.bottomAnchor, constant: 1).isActive = true
+        messTimeLabel.topAnchor.constraint(equalTo: messTextLabel.bottomAnchor, constant: 5).isActive = true
     }
 }

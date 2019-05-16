@@ -54,12 +54,12 @@ class ChatViewController: UIViewController {
         addChatSendButton()
         addConstraints()
         
-        chatTextField.delegate = self
+//        chatTextField.delegate = self
         chatTableView.dataSource = self
         chatTableView.delegate = self
         
-        chatTableView.estimatedRowHeight = 150
-        chatTableView.rowHeight = UITableView.automaticDimension
+//        chatTableView.estimatedRowHeight = 150
+//        chatTableView.rowHeight = UITableView.automaticDimension
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -211,13 +211,13 @@ class ChatViewController: UIViewController {
     }
 }
 
-extension ChatViewController: UITextFieldDelegate {
-    
+//extension ChatViewController: UITextFieldDelegate {
+//
 //    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
 //        print("textFieldShouldEndEditing")
 //        return true
 //    }
-}
+//}
 
 extension ChatViewController: UITableViewDataSource {
     
@@ -242,15 +242,26 @@ extension ChatViewController: UITableViewDelegate {
         chatTextField.resignFirstResponder()
     }
     
-//    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
 //        let h = UITableView.automaticDimension
 //        print("cell height = \(h)")
 //        return h
-//    }
-//
+        
+        let messTextLabel = UILabel()
+        messTextLabel.text = allPosts[indexPath.row].text
+        messTextLabel.numberOfLines = 0
+        messTextLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
+        
+        messTextLabel.frame.size.width = tableView.bounds.width - 26
+        messTextLabel.sizeToFit()
+        let height = messTextLabel.bounds.height
+        print("Height = \(height)")
+        return height + 25
+    }
+
 //    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
 //        print("estimatedHeightForRowAt")
-//        return 150
+//        return UITableView.automaticDimension
 //    }
     
 }
