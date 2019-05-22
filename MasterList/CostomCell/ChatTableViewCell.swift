@@ -31,12 +31,13 @@ class ChatTableViewCell: UITableViewCell {
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
         
-        print(#function)
+//        print(#function)
         backgroundColor = .white
         addMainView()
         addMessTextLabel()
         addMessTimeLabel()
         addConstraints()
+        selectionStyle = .none
     }
     
     private func addMainView() {

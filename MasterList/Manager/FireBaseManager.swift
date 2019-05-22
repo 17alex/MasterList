@@ -16,14 +16,24 @@ class FireBaseManager: StoredProtocol {
     
     private let ref: DatabaseReference = Database.database().reference()
    
+    var currentPeople: People?
+    
     var currentMyUser: People? {
-        guard let currentUser = Auth.auth().currentUser else { return nil }
-        return People(user: currentUser)
+        guard let currentUser = Auth.auth().currentUser else {
+            currentPeople = nil
+            return nil
+        }
+        
+        if currentPeople?.uid == currentUser.uid {
+            return currentPeople
+        } else {
+            return People(user: currentUser)
+        }
     }
     
     func createAllUsersObserver(completion: @escaping ([People]) -> Void) {
         if let currUser = currentMyUser {
-            ref.child("users/list").observe(.value) { (snapshot) in
+            ref.child("users/list").observe(.value) { [weak self] (snapshot) in
                 var allUsers: [People] = []
                 for item in snapshot.children {
                     let snap = item as! DataSnapshot
@@ -33,6 +43,8 @@ class FireBaseManager: StoredProtocol {
                     let myUser = People(uid: uid, name: name)
                     if myUser.uid != currUser.uid {
                         allUsers.append(myUser)
+                    } else {
+                        self?.currentPeople = myUser
                     }
                 }
                 completion(allUsers)
@@ -126,6 +138,7 @@ class FireBaseManager: StoredProtocol {
     func add(frend: People) {
         if let currUser = currentMyUser {
             ref.child("users/list/\(currUser.uid)/frends/\(frend.uid)").setValue(["name": frend.name, "uid": frend.uid])
+            ref.child("users/list/\(frend.uid)/frends/\(currUser.uid)").setValue(["name": currUser.name, "uid": currUser.uid])
         }
     }
     

@@ -13,14 +13,25 @@ class ChatViewController: UIViewController {
     private var chatTableView: UITableView!
     private var chatTextField: UITextField!
     private var chatSendButton: UIButton!
+    private var searchController: UISearchController!
     private var loadingView: LoadingView!
     
     private var myFrend: People!
     private var currentMyUser: People!
     private var allPosts: [Post] = []
+    private var filterAllPosts: [Post] = []
     private var myPosts: [Post] = []
     private var frendPosts: [Post] = []
     private let storedManager: StoredProtocol
+    
+    private var searchBarIsEmpty: Bool {
+        guard let text = searchController.searchBar.text else { return false }
+        return text.isEmpty
+    }
+    
+    private var isFiltered: Bool {
+        return searchController.isActive && !searchBarIsEmpty
+    }
     
     init(myFrend: People, _ storedManager: StoredProtocol) {
         self.myFrend = myFrend
@@ -53,6 +64,7 @@ class ChatViewController: UIViewController {
         addChatTextField()
         addChatSendButton()
         addConstraints()
+        addSearchController()
         
 //        chatTextField.delegate = self
         chatTableView.dataSource = self
@@ -116,7 +128,8 @@ class ChatViewController: UIViewController {
         let offset = kbFrameSize.height
 //        print("offset = \(offset)")
         
-        UIView.animate(withDuration: 0.25, animations: { [weak self] in
+        UIView.animate(withDuration: 0.5, animations: { [weak self] in
+            
             self?.view.frame.size.height -= offset
         }) { [weak self] (_) in
             if let numberRows = self?.allPosts.count {
@@ -131,7 +144,7 @@ class ChatViewController: UIViewController {
     @objc
     private func keyboardHide() {
         
-        UIView.animate(withDuration: 0.25) { [weak self] in
+        UIView.animate(withDuration: 0.5) { [weak self] in
 //            self?.view.frame.origin.y = 0
             self?.view.frame.size.height = UIScreen.main.bounds.height
         }
@@ -182,6 +195,15 @@ class ChatViewController: UIViewController {
         chatSendButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(chatSendButton)
     }
+    
+    private func addSearchController() {
+        searchController = UISearchController(searchResultsController: nil)
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "search text"
+        navigationItem.searchController = searchController
+        definesPresentationContext = true
+    }
 
     private func addConstraints() {
         chatTableView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
@@ -222,14 +244,18 @@ class ChatViewController: UIViewController {
 extension ChatViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return allPosts.count
+        if isFiltered   { return filterAllPosts.count }
+        else            { return allPosts.count }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "chatCell", for: indexPath) as! ChatTableViewCell
-        cell.messText = allPosts[indexPath.row].text
-        cell.messTime = allPosts[indexPath.row].time
-        let messUser = allPosts[indexPath.row].people
+        let post: Post!
+        if isFiltered   { post = filterAllPosts[indexPath.row] }
+        else            { post = allPosts[indexPath.row] }
+        cell.messText = post.text
+        cell.messTime = post.time
+        let messUser = post.people
         cell.messTextColor = messUser.uid == currentMyUser.uid ? .red : .blue
         return cell
     }
@@ -238,7 +264,7 @@ extension ChatViewController: UITableViewDataSource {
 extension ChatViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+        tableView.deselectRow(at: indexPath, animated: false)
         chatTextField.resignFirstResponder()
     }
     
@@ -255,7 +281,7 @@ extension ChatViewController: UITableViewDelegate {
         messTextLabel.frame.size.width = tableView.bounds.width - 26
         messTextLabel.sizeToFit()
         let height = messTextLabel.bounds.height
-        print("Height = \(height)")
+//        print("Height = \(height)")
         return height + 25
     }
 
@@ -264,4 +290,14 @@ extension ChatViewController: UITableViewDelegate {
 //        return UITableView.automaticDimension
 //    }
     
+}
+
+extension ChatViewController: UISearchResultsUpdating {
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        filterAllPosts = allPosts.filter({ (post) -> Bool in
+            return post.text.lowercased().contains(searchController.searchBar.text!.lowercased())
+        })
+        chatTableView.reloadData()
+    }
 }

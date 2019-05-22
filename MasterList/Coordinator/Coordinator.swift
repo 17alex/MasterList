@@ -22,30 +22,30 @@ class Coordinator {
         self.window = window
     }
     
-    private lazy var logedInAction = {
+    private lazy var logedInAction = { () -> Void in
         print("Coordinator -> logedIn clouser")
         self.frendsViewController = FrendsViewController(self.storedManager, self.addFrends, self.openFrendChat, self.signOut)
         self.navConroller?.pushViewController(self.frendsViewController, animated: true)
     }
     
-    lazy var openFrendChat: (People) -> Void = { people in
+    lazy var openFrendChat = { (people: People) -> Void in
         print("Coordinator -> openFrendChat")
         self.chatViewController = ChatViewController(myFrend: people, self.storedManager)
         self.navConroller?.pushViewController(self.chatViewController, animated: true)
     }
     
-    lazy var addFrends = {
+    lazy var addFrends = { () -> Void in
         print("Coordinator -> addMyUsersButtonClicked")
         self.allUsersViewController = AllUsersViewController(self.storedManager, self.openChat)
         self.navConroller?.pushViewController(self.allUsersViewController, animated: true)
     }
     
-    lazy var signOut = {
+    lazy var signOut = { () -> Void in
         print("Coordinator -> signOut")
         self.navConroller?.popViewController(animated: true)
     }
     
-    lazy var openChat: (People) -> Void = { people in
+    lazy var openChat = { (people: People) -> Void in
         print("Coordinator -> openChat")
         self.navConroller?.popViewController(animated: false)
         self.openFrendChat(people)

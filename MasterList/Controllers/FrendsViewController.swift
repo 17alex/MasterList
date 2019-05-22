@@ -11,14 +11,25 @@ import UIKit
 class FrendsViewController: UIViewController {
 
     private var frendsTableView: UITableView!
+    private var searchController: UISearchController!
     private var loadingView: LoadingView!
     
     private var frends: [People] = []
+    private var filterFrends: [People] = []
     private var currentPeople: People?
     private let storedManager: StoredProtocol
     private let addOrRemoveFrends: () -> Void
     private let openFrendChat: (People) -> Void
     private let signOut: () -> Void
+    
+    private var searchBarIsEmpty: Bool {
+        guard let text = searchController.searchBar.text else { return false }
+        return text.isEmpty
+    }
+    
+    private var isFiltered: Bool {
+        return searchController.isActive && !searchBarIsEmpty
+    }
     
     init(_ storedManager: StoredProtocol, _ addOrRemoveFrends: @escaping () -> Void, _ openFrendChat: @escaping (People) -> Void, _ signOut: @escaping () -> Void) {
         self.storedManager = storedManager
@@ -45,8 +56,7 @@ class FrendsViewController: UIViewController {
         configNavController()
         addUsersTableView()
         addConstraints()
-        frendsTableView.dataSource = self
-        frendsTableView.delegate = self
+        addSearchController()
 
         guard let currPeople = storedManager.currentMyUser else {
             navigationItem.title = "error"
@@ -100,6 +110,8 @@ class FrendsViewController: UIViewController {
         frendsTableView = UITableView()
         frendsTableView.translatesAutoresizingMaskIntoConstraints = false
         frendsTableView.register(UITableViewCell.self, forCellReuseIdentifier: "proplesList")
+        frendsTableView.dataSource = self
+        frendsTableView.delegate = self
         view.addSubview(frendsTableView)
     }
     
@@ -108,6 +120,15 @@ class FrendsViewController: UIViewController {
         frendsTableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
         frendsTableView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         frendsTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+    }
+    
+    private func addSearchController() {
+        searchController = UISearchController(searchResultsController: nil)
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "search Name"
+        navigationItem.searchController = searchController
+        definesPresentationContext = true
     }
     
     private func showLoadingView() {
@@ -124,12 +145,20 @@ class FrendsViewController: UIViewController {
 extension FrendsViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return frends.count
+        if isFiltered {
+            return filterFrends.count
+        } else {
+            return frends.count
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "proplesList", for: indexPath)
-        cell.textLabel?.text = frends[indexPath.row].name
+        if isFiltered {
+            cell.textLabel?.text = filterFrends[indexPath.row].name
+        } else {
+            cell.textLabel?.text = frends[indexPath.row].name
+        }
         return cell
     }
 }
@@ -138,7 +167,22 @@ extension FrendsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let frend = frends[indexPath.row]
+        let frend: People!
+        if isFiltered {
+            frend = filterFrends[indexPath.row]
+        } else {
+            frend = frends[indexPath.row]
+        }
         openFrendChat(frend)
+    }
+}
+
+extension FrendsViewController: UISearchResultsUpdating {
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        filterFrends = frends.filter({ (frend) -> Bool in
+            return frend.name.lowercased().contains(searchController.searchBar.text!.lowercased())
+        })
+        frendsTableView.reloadData()
     }
 }
