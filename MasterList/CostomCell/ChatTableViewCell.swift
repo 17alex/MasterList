@@ -10,22 +10,33 @@ import UIKit
 
 class ChatTableViewCell: UITableViewCell {
 
-    var mainView: UIView!
-    var messView: UIView!
+    private var mainView: UIView!
+    private var messView: UIView!
     
-    var messTextLabel: UILabel!
-    var messTimeLabel: UILabel!
+    private var messTextLabel: UILabel!
+    private var messTimeLabel: UILabel!
+    
+    private var leftConstrain: NSLayoutConstraint!
+    private var rightConstrain: NSLayoutConstraint!
     
     var messText: String = ""
     var messTime: TimeInterval = 0
-    var messTextColor: UIColor = .black
+    var messIsMyText: Bool = false
     
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         messTextLabel.text = messText
-        messTextLabel.textColor = messTextColor
         messTimeLabel.text = dateToString(format: "dd:MM:yy HH:mm:ss", timeInterval: messTime)
+        if messIsMyText {
+            rightConstrain.constant = -8
+            leftConstrain.constant = 88
+            messTextLabel.textColor = .red
+        } else {
+            rightConstrain.constant = -88
+            leftConstrain.constant = 8
+            messTextLabel.textColor = .blue
+        }
     }
 
     override func didMoveToSuperview() {
@@ -43,7 +54,7 @@ class ChatTableViewCell: UITableViewCell {
     private func addMainView() {
         mainView = UIView()
         mainView.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
-        mainView.layer.cornerRadius = 5
+        mainView.layer.cornerRadius = 10
         mainView.layer.borderWidth = 1
         mainView.layer.borderColor = UIColor.darkGray.cgColor
         mainView.translatesAutoresizingMaskIntoConstraints = false
@@ -68,9 +79,14 @@ class ChatTableViewCell: UITableViewCell {
     }
     
     private func addConstraints() {
-        mainView.leftAnchor.constraint(equalTo: leftAnchor, constant: 8).isActive = true
+        
+        leftConstrain = mainView.leftAnchor.constraint(equalTo: leftAnchor, constant: 8)
+        leftConstrain.isActive = true
+        
+        rightConstrain = mainView.rightAnchor.constraint(equalTo: rightAnchor, constant: -8)
+        rightConstrain.isActive = true
+        
         mainView.topAnchor.constraint(equalTo: topAnchor, constant: 1).isActive = true
-        mainView.rightAnchor.constraint(equalTo: rightAnchor, constant: -8).isActive = true
         mainView.bottomAnchor.constraint(equalTo: messTimeLabel.bottomAnchor, constant: 2).isActive = true
         
         messTextLabel.leftAnchor.constraint(equalTo: mainView.leftAnchor, constant: 5).isActive = true

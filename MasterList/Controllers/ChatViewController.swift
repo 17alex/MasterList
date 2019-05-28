@@ -23,6 +23,7 @@ class ChatViewController: UIViewController {
     private var myPosts: [Post] = []
     private var frendPosts: [Post] = []
     private let storedManager: StoredProtocol
+    private var kbIsShow: Bool = false
     
     private var searchBarIsEmpty: Bool {
         guard let text = searchController.searchBar.text else { return false }
@@ -120,17 +121,19 @@ class ChatViewController: UIViewController {
     
     @objc
     private func keyboardShow(notification: NSNotification) {
-//        print("keyboardShow")
+        if kbIsShow == true { return }
+        kbIsShow = true
+        print("keyboardShow")
         guard let userInfo = notification.userInfo else { return }
-//        print("userInfo = \(userInfo)")
+        //        print("userInfo = \(userInfo)")
         let kbFrameSize = (userInfo["UIKeyboardFrameEndUserInfoKey"] as! NSValue).cgRectValue
-//        print("showKeyboard kbFrameSize = \(kbFrameSize)")
+        //        print("showKeyboard kbFrameSize = \(kbFrameSize)")
         let offset = kbFrameSize.height
-//        print("offset = \(offset)")
+        //        print("offset = \(offset)")
         
         UIView.animate(withDuration: 0.5, animations: { [weak self] in
             
-            self?.view.frame.size.height -= offset
+            self?.view.frame.size.height = UIScreen.main.bounds.height - offset
         }) { [weak self] (_) in
             if let numberRows = self?.allPosts.count {
                 let scrollRow = numberRows == 0 ? 0 : numberRows - 1
@@ -143,7 +146,9 @@ class ChatViewController: UIViewController {
     
     @objc
     private func keyboardHide() {
-        
+        if kbIsShow == false { return }
+        kbIsShow = false
+        print("keyboardHide")
         UIView.animate(withDuration: 0.5) { [weak self] in
 //            self?.view.frame.origin.y = 0
             self?.view.frame.size.height = UIScreen.main.bounds.height
@@ -256,7 +261,10 @@ extension ChatViewController: UITableViewDataSource {
         cell.messText = post.text
         cell.messTime = post.time
         let messUser = post.people
-        cell.messTextColor = messUser.uid == currentMyUser.uid ? .red : .blue
+        
+        if messUser.uid == currentMyUser.uid    { cell.messIsMyText = true }
+        else                                    { cell.messIsMyText = false }
+        
         return cell
     }
 }
@@ -264,6 +272,7 @@ extension ChatViewController: UITableViewDataSource {
 extension ChatViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print(#function)
         tableView.deselectRow(at: indexPath, animated: false)
         chatTextField.resignFirstResponder()
     }
@@ -278,11 +287,11 @@ extension ChatViewController: UITableViewDelegate {
         messTextLabel.numberOfLines = 0
         messTextLabel.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         
-        messTextLabel.frame.size.width = tableView.bounds.width - 26
+        messTextLabel.frame.size.width = tableView.bounds.width - 106
         messTextLabel.sizeToFit()
         let height = messTextLabel.bounds.height
 //        print("Height = \(height)")
-        return height + 25
+        return height + 35
     }
 
 //    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
