@@ -24,6 +24,9 @@ class ChatViewController: UIViewController {
     private var frendPosts: [Post] = []
     private let storedManager: StoredProtocol
     private var kbIsShow: Bool = false
+    private var myPostIsLoaded = false
+    private var frendsPostIsLoaded = false
+    private var isSendMessageScroll = false
     
     private var searchBarIsEmpty: Bool {
         guard let text = searchController.searchBar.text else { return false }
@@ -66,13 +69,6 @@ class ChatViewController: UIViewController {
         addChatSendButton()
         addConstraints()
         addSearchController()
-        
-//        chatTextField.delegate = self
-        chatTableView.dataSource = self
-        chatTableView.delegate = self
-        
-//        chatTableView.estimatedRowHeight = 150
-//        chatTableView.rowHeight = UITableView.automaticDimension
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -82,32 +78,31 @@ class ChatViewController: UIViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         
         showLoadingView()
-        var taskCount = 2
         storedManager.createChatObserverFor(people: myFrend) { [weak self] (posts) in
             self?.myPosts = posts
-
-            if taskCount > 0 { taskCount -= 1 }
-            if taskCount == 0 { endLoading() }
+            self?.myPostIsLoaded = true
+            mergeAndSortPosts()
         }
         
         storedManager.createChatObserverFrom(people: myFrend) { [weak self] (posts) in
             self?.frendPosts = posts
-
-            if taskCount > 0 { taskCount -= 1 }
-            if taskCount == 0 { endLoading() }
+            self?.frendsPostIsLoaded = true
+            mergeAndSortPosts()
         }
         
-        func endLoading() {
-            allPosts = myPosts
-            allPosts.append(contentsOf: frendPosts)
-            removeLoadingView()
-            allPosts.sort(by: { (m1, m2) -> Bool in
-                return m1.time < m2.time
-            })
-            chatTableView.reloadData()
-            let scrollRow = allPosts.count == 0 ? 0 : allPosts.count - 1
-            if scrollRow > 0 {
-                chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: true)
+        func mergeAndSortPosts() {
+            if myPostIsLoaded && frendsPostIsLoaded {
+                allPosts = myPosts
+                allPosts.append(contentsOf: frendPosts)
+                removeLoadingView()
+                allPosts.sort(by: { (m1, m2) -> Bool in
+                    return m1.time < m2.time
+                })
+                chatTableView.reloadData()
+                let scrollRow = allPosts.count == 0 ? 0 : allPosts.count - 1
+                if scrollRow > 0 {
+                    chatTableView.scrollToRow(at: IndexPath(row: scrollRow , section: 0), at: .middle, animated: isSendMessageScroll)
+                }
             }
         }
     }
@@ -167,6 +162,7 @@ class ChatViewController: UIViewController {
             dict[Int(item.time).description] = item.text
         }
         storedManager.set(posts: dict, forUser: myFrend)
+        isSendMessageScroll = true
     }
     
     private func addChatTableView() {
@@ -176,6 +172,10 @@ class ChatViewController: UIViewController {
         chatTableView.translatesAutoresizingMaskIntoConstraints = false
         chatTableView.register(ChatTableViewCell.self, forCellReuseIdentifier: "chatCell")
         view.addSubview(chatTableView)
+        chatTableView.dataSource = self
+        chatTableView.delegate = self
+//        chatTableView.estimatedRowHeight = 150
+//        chatTableView.rowHeight = UITableView.automaticDimension
     }
     
     private func addChatTextField() {
@@ -186,6 +186,7 @@ class ChatViewController: UIViewController {
 //        chatTextField.layer.borderWidth = 1
         chatTextField.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(chatTextField)
+//        chatTextField.delegate = self
     }
     
     private func addChatSendButton() {
@@ -195,8 +196,8 @@ class ChatViewController: UIViewController {
         chatSendButton.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
         chatSendButton.addTarget(self, action: #selector(chatSendButtonPress), for: .touchUpInside)
         chatSendButton.layer.cornerRadius = 5
-        chatSendButton.layer.borderColor = UIColor.darkGray.cgColor
-        chatSendButton.layer.borderWidth = 1
+//        chatSendButton.layer.borderColor = UIColor.darkGray.cgColor
+//        chatSendButton.layer.borderWidth = 1
         chatSendButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(chatSendButton)
     }
