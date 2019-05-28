@@ -11,9 +11,9 @@ import UIKit
 class ChatViewController: UIViewController {
     
     private var chatTableView: UITableView!
-    private var chatTextField: UITextField!
     private var chatSendButton: UIButton!
     private var searchController: UISearchController!
+    private var chatTextView: UITextView!
     private var loadingView: LoadingView!
     
     private var myFrend: People!
@@ -65,7 +65,8 @@ class ChatViewController: UIViewController {
         currentMyUser = currMyUser
         
         addChatTableView()
-        addChatTextField()
+//        addChatTextField()
+        addChatTextView()
         addChatSendButton()
         addConstraints()
         addSearchController()
@@ -153,10 +154,10 @@ class ChatViewController: UIViewController {
     @objc
     private func chatSendButtonPress() {
         
-        guard let messageText = chatTextField.text, !messageText.isEmpty else { return }
+        guard let messageText = chatTextView.text, !messageText.isEmpty else { return }
         let timeInterval = Date().timeIntervalSince1970
         myPosts.append(Post(time: timeInterval, text: messageText, people: currentMyUser))
-        chatTextField.text = ""
+        chatTextView.text = ""
         var dict: [String: String] = [:]
         for item in myPosts {
             dict[Int(item.time).description] = item.text
@@ -178,15 +179,13 @@ class ChatViewController: UIViewController {
 //        chatTableView.rowHeight = UITableView.automaticDimension
     }
     
-    private func addChatTextField() {
-        chatTextField = UITextField()
-        chatTextField.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
-        chatTextField.borderStyle = .roundedRect
-//        chatTextField.layer.borderColor = UIColor.darkGray.cgColor
-//        chatTextField.layer.borderWidth = 1
-        chatTextField.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(chatTextField)
-//        chatTextField.delegate = self
+    private func addChatTextView() {
+        chatTextView = UITextView()
+        chatTextView.backgroundColor = #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)
+        chatTextView.font = UIFont.systemFont(ofSize: 18, weight: .regular)
+        chatTextView.isScrollEnabled = false
+        chatTextView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(chatTextView)
     }
     
     private func addChatSendButton() {
@@ -215,17 +214,18 @@ class ChatViewController: UIViewController {
         chatTableView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         chatTableView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         chatTableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 20).isActive = true
-        chatTableView.bottomAnchor.constraint(equalTo: chatTextField.topAnchor, constant: -8).isActive = true
+        chatTableView.bottomAnchor.constraint(equalTo: chatTextView.topAnchor, constant: -8).isActive = true
         
-        chatTextField.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 8).isActive = true
-        chatTextField.rightAnchor.constraint(equalTo: chatSendButton.leftAnchor, constant: -8).isActive = true
-        chatTextField.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8).isActive = true
+        chatTextView.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 8).isActive = true
+        chatTextView.rightAnchor.constraint(equalTo: chatSendButton.leftAnchor, constant: -8).isActive = true
+        chatTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -8).isActive = true
+
         
-        chatSendButton.topAnchor.constraint(equalTo: chatTextField.topAnchor).isActive = true
+        chatSendButton.topAnchor.constraint(equalTo: chatTextView.topAnchor).isActive = true
         chatSendButton.rightAnchor.constraint(equalTo: view.rightAnchor, constant: -8).isActive = true
-        chatSendButton.bottomAnchor.constraint(equalTo: chatTextField.bottomAnchor).isActive = true
+        chatSendButton.bottomAnchor.constraint(equalTo: chatTextView.bottomAnchor).isActive = true
         chatSendButton.widthAnchor.constraint(equalToConstant: 60).isActive = true
-        chatSendButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
+//        chatSendButton.heightAnchor.constraint(equalToConstant: 40).isActive = true
     }
 
     private func showLoadingView() {
@@ -238,14 +238,6 @@ class ChatViewController: UIViewController {
         if loadingView != nil { loadingView.removeFromSuperview() }
     }
 }
-
-//extension ChatViewController: UITextFieldDelegate {
-//
-//    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-//        print("textFieldShouldEndEditing")
-//        return true
-//    }
-//}
 
 extension ChatViewController: UITableViewDataSource {
     
@@ -275,7 +267,7 @@ extension ChatViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print(#function)
         tableView.deselectRow(at: indexPath, animated: false)
-        chatTextField.resignFirstResponder()
+        chatTextView.resignFirstResponder()
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -300,6 +292,42 @@ extension ChatViewController: UITableViewDelegate {
 //        return UITableView.automaticDimension
 //    }
     
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        if allPosts[indexPath.row].people.uid == currentMyUser.uid { return true }
+        else                                                       { return false }
+    }
+    
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        let deleteAction = UITableViewRowAction(style: .destructive, title: "Delete") { (action, index) in
+            
+            let deletePost = self.allPosts[indexPath.row]
+            
+            self.allPosts.remove(at: indexPath.row)
+            tableView.beginUpdates()
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+            tableView.endUpdates()
+            
+            
+            var nember = 0
+            
+            for (i, post) in self.myPosts.enumerated() {
+                if post == deletePost {
+                    nember = i
+                }
+            }
+            
+            self.myPosts.remove(at: nember)
+            
+            var dict: [String: String] = [:]
+            for item in self.myPosts {
+                dict[Int(item.time).description] = item.text
+            }
+            
+            self.storedManager.set(posts: dict, forUser: self.myFrend)
+        }
+        
+        return [deleteAction]
+    }
 }
 
 extension ChatViewController: UISearchResultsUpdating {

@@ -27,7 +27,7 @@ class ChatTableViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         messTextLabel.text = messText
-        messTimeLabel.text = dateToString(format: "dd:MM:yy HH:mm:ss", timeInterval: messTime)
+        messTimeLabel.text = dateToString(format: "dd MMM yyyy  HH:mm", timeInterval: messTime)
         if messIsMyText {
             rightConstrain.constant = -8
             leftConstrain.constant = 88
@@ -94,7 +94,7 @@ class ChatTableViewCell: UITableViewCell {
         messTextLabel.rightAnchor.constraint(equalTo: mainView.rightAnchor, constant: -5).isActive = true
         messTextLabel.sizeToFit()
         
-        messTimeLabel.leftAnchor.constraint(equalTo: mainView.leftAnchor, constant: 10).isActive = true
+        messTimeLabel.rightAnchor.constraint(equalTo: mainView.rightAnchor, constant: -10).isActive = true
         messTimeLabel.topAnchor.constraint(equalTo: messTextLabel.bottomAnchor, constant: 5).isActive = true
     }
 }

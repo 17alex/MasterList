@@ -14,6 +14,11 @@ struct Post {
     let people: People
 }
 
+func == (l: Post, r: Post) -> Bool {
+    if l.time == r.time && l.text == r.text && l.people.name == r.people.name && l.people.uid == r.people.uid   { return true }
+    else                                                                                                                { return false }
+}
+
 func dateToString(format: String, timeInterval: TimeInterval?) -> String {
     guard let timeInt = timeInterval else { return "--/--/----  --:--:--" }
     let date: Date = Date(timeIntervalSince1970: Double(timeInt))
@@ -22,3 +27,5 @@ func dateToString(format: String, timeInterval: TimeInterval?) -> String {
     dateFormatter.dateFormat = format
     return dateFormatter.string(from: date)
 }
+
+
